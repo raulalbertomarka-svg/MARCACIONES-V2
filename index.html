@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>G+MARKA — Control de Asistencia</title>
+<title>MARKA — Control de Asistencia</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -425,11 +425,14 @@
 // ═══════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════
-const SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?output=csv';
+// Hoja 1: PDV (Nombre del PDV | Latitud | Longitud)
+const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?output=csv&gid=0';
+// Hoja 2: Relevadores (NOMBRE Y APELLIDO | C.I)
+const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?output=csv&gid=1995845338';
 
 // Google Apps Script Web App URL — reemplazar con la URL real del script desplegado
 // Ver instrucciones al final del HTML
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSo1OiVsTWkuHvcIjj42yHMTdE9vAXIIYLN6fyiyd6n27yiNX8OmzXMzHn9ubq-9pnEA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec';
 
 const MAX_DISTANCE_METERS = 500; // radio permitido para check-in
 
@@ -461,65 +464,64 @@ window.addEventListener('DOMContentLoaded', async () => {
 // ═══════════════════════════════════════════════════
 async function loadSheetsData() {
   try {
-    const res = await fetch(SHEETS_CSV + '&t=' + Date.now());
-    const text = await res.text();
-    parseCSV(text);
+    // Cargar las dos hojas en paralelo
+    const [resPdv, resRel] = await Promise.all([
+      fetch(SHEETS_PDV + '&t=' + Date.now()),
+      fetch(SHEETS_REL + '&t=' + Date.now())
+    ]);
+    const [textPdv, textRel] = await Promise.all([resPdv.text(), resRel.text()]);
+    parsePDV(textPdv);
+    parseRelevadores(textRel);
   } catch(e) {
-    toast('Error al cargar datos de Google Sheets', 'error');
+    toast('Error al cargar datos. Verifique conexión.', 'error');
   }
 }
 
-function parseCSV(text) {
-  const rows = text.split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
-  if (!rows.length) return;
+function csvRows(text) {
+  // Parseo CSV robusto (maneja comas dentro de comillas)
+  return text.split('\n').map(line => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }).filter(r => r.some(c => c !== ''));
+}
 
-  // Detectar columnas: buscar cabeceras
-  // Asumimos:
-  //   Hoja 1 (PDV): columnas Nombre, Latitud, Longitud
-  //   Hoja 2 (Relevadores): columnas Nombre, Cedula
-  // El CSV publicado mezcla ambas hojas en columnas adicionales
-  // Columnas típicas: A=PDV nombre, B=PDV lat, C=PDV lng, D=Rel nombre, E=Rel cedula
-
+function parsePDV(text) {
+  // Hoja 1: Columna A = Nombre PDV, B = Latitud, C = Longitud
   state.pdvs = [];
-  state.relevadores = [];
-
-  const header = rows[0].map(h => h.toLowerCase());
-  
-  // Intentar detectar índices de columnas
-  let idxPdvNombre = header.findIndex(h => h.includes('punto') || h.includes('pdv') || h === 'nombre');
-  let idxPdvLat = header.findIndex(h => h.includes('latitud') || h.includes('lat'));
-  let idxPdvLng = header.findIndex(h => h.includes('longitud') || h.includes('lng') || h.includes('lon'));
-  let idxRelNombre = header.findIndex(h => h.includes('relevador') || h.includes('rel'));
-  let idxRelCed = header.findIndex(h => h.includes('cedula') || h.includes('cédula') || h.includes('ci'));
-
-  // Fallback a posiciones fijas si no detecta
-  if (idxPdvNombre < 0) idxPdvNombre = 0;
-  if (idxPdvLat < 0) idxPdvLat = 1;
-  if (idxPdvLng < 0) idxPdvLng = 2;
-  if (idxRelNombre < 0) idxRelNombre = 3;
-  if (idxRelCed < 0) idxRelCed = 4;
-
+  const rows = csvRows(text);
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
-    if (!r || r.length < 2) continue;
-
-    // PDV
-    const pdvNom = r[idxPdvNombre];
-    const pdvLat = parseFloat(r[idxPdvLat]);
-    const pdvLng = parseFloat(r[idxPdvLng]);
-    if (pdvNom && !isNaN(pdvLat) && !isNaN(pdvLng)) {
-      state.pdvs.push({ nombre: pdvNom, lat: pdvLat, lng: pdvLng });
-    }
-
-    // Relevador
-    const relNom = r[idxRelNombre];
-    const relCed = r[idxRelCed] ? String(r[idxRelCed]).trim() : '';
-    if (relNom && relCed && relCed !== '') {
-      state.relevadores.push({ nombre: relNom, cedula: relCed });
+    const nombre = r[0];
+    const lat = parseFloat(r[1]);
+    const lng = parseFloat(r[2]);
+    if (nombre && !isNaN(lat) && !isNaN(lng)) {
+      state.pdvs.push({ nombre, lat, lng });
     }
   }
-
   populatePdvSelect();
+}
+
+function parseRelevadores(text) {
+  // Hoja 2: Columna A = NOMBRE Y APELLIDO, B = C.I
+  state.relevadores = [];
+  const rows = csvRows(text);
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    const nombre = r[0] ? r[0].trim() : '';
+    // Limpiar cédula: quitar puntos, espacios, guiones
+    const cedula = r[1] ? String(r[1]).trim().replace(/[\.\-\s]/g, '') : '';
+    if (nombre && cedula) {
+      state.relevadores.push({ nombre, cedula });
+    }
+  }
 }
 
 function populatePdvSelect() {
@@ -578,8 +580,9 @@ function onCedulaInput() {
   const val = document.getElementById('inp-cedula').value.trim();
   const preview = document.getElementById('preview-name');
   const previewText = document.getElementById('preview-name-text');
-  if (val.length >= 5) {
-    const found = state.relevadores.find(r => r.cedula === val);
+  const valClean = val.replace(/[\.\-\s]/g, '');
+  if (valClean.length >= 5) {
+    const found = state.relevadores.find(r => r.cedula === valClean);
     if (found) {
       previewText.textContent = found.nombre;
       preview.classList.add('visible');
@@ -599,7 +602,7 @@ function onCedulaInput() {
 }
 
 async function doLogin() {
-  const cedula = document.getElementById('inp-cedula').value.trim();
+  const cedula = document.getElementById('inp-cedula').value.trim().replace(/[\.\-\s]/g, '');
   const marca = document.getElementById('sel-marca').value;
 
   if (!marca) { toast('Seleccione una marca primero', 'warn'); return; }
@@ -867,57 +870,5 @@ function hideLoading() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 </script>
-
-<!--
-═══════════════════════════════════════════════════════════
-  INSTRUCCIONES: CONFIGURAR GOOGLE APPS SCRIPT
-═══════════════════════════════════════════════════════════
-
-1. Vaya a https://script.google.com y cree un nuevo proyecto.
-
-2. Pegue este código en el editor:
-
-function doGet(e) {
-  try {
-    var ss = SpreadsheetApp.openById('SU_SPREADSHEET_ID');
-    var sheet = ss.getSheetByName('Registros') || ss.insertSheet('Registros');
-    
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(['Cédula','Nombre','Marca','PDV','Fecha','Hora','Tipo','Latitud','Longitud']);
-    }
-    
-    sheet.appendRow([
-      e.parameter.cedula,
-      e.parameter.nombre,
-      e.parameter.marca,
-      e.parameter.pdv,
-      e.parameter.fecha,
-      e.parameter.hora,
-      e.parameter.tipo,
-      e.parameter.lat,
-      e.parameter.lng
-    ]);
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({status:'ok'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({status:'error', message: err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-3. Reemplace 'SU_SPREADSHEET_ID' con el ID de su Google Sheets de destino.
-
-4. Haga clic en "Implementar" → "Nueva implementación":
-   - Tipo: Aplicación web
-   - Ejecutar como: Yo
-   - Quién tiene acceso: Cualquier usuario
-
-5. Copie la URL generada y reemplace APPS_SCRIPT_URL en este HTML.
-═══════════════════════════════════════════════════════════
--->
-
 </body>
 </html>
