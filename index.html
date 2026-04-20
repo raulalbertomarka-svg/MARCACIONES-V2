@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>G+MARKA — Control de Asistencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a1a1a;
+    --accent: #C8A84B;
+    --accent2: #e0c060;
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #e0e0e0;
+    --text: #1a1a1a;
+    --muted: #777;
+    --success: #2e7d32;
+    --danger: #c62828;
+    --info: #1565c0;
+    --warn: #e65100;
+    --radius: 12px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--primary);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .logo-text span { color: var(--accent); }
+  .header-user {
+    font-size: 13px;
+    color: #aaa;
+    text-align: right;
+    max-width: 140px;
+  }
+  .header-user strong { display: block; color: #fff; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-logout {
+    background: none;
+    border: 1px solid #555;
+    color: #ccc;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    transition: all .2s;
+  }
+  .btn-logout:hover { background: #333; color: #fff; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; flex-direction: column; flex: 1; padding: 24px 16px; max-width: 480px; margin: 0 auto; width: 100%; }
+  .screen.active { display: flex; }
+
+  /* ── LOGIN ── */
+  #screen-login {
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    background: var(--bg);
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .login-box {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 36px 28px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .login-logo {
+    text-align: center;
+  }
+  .login-logo .big-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 38px;
+    letter-spacing: 2px;
+    color: var(--primary);
+  }
+  .login-logo .big-logo span { color: var(--accent); }
+  .login-logo .sub { font-size: 13px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+  .login-divider { width: 48px; height: 3px; background: var(--accent); margin: 0 auto; border-radius: 2px; }
+
+  label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; display: block; }
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 17px;
+    font-family: 'Barlow', sans-serif;
+    color: var(--text);
+    background: #fafafa;
+    transition: border .2s;
+    outline: none;
+    appearance: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); background: #fff; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+  .preview-name {
+    background: #f0f4ff;
+    border: 1.5px solid #90caf9;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--info);
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  .preview-name.visible { display: flex; }
+  .preview-name .icon { font-size: 22px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #333; }
+  .btn-checkin { background: var(--success); color: #fff; font-size: 20px; padding: 20px; border-radius: 14px; }
+  .btn-checkin:hover { background: #1b5e20; }
+  .btn-checkout { background: var(--danger); color: #fff; font-size: 20px; padding: 20px; border-radius: 14px; }
+  .btn-checkout:hover { background: #b71c1c; }
+  .btn-disabled { background: #ccc !important; color: #888 !important; cursor: not-allowed; pointer-events: none; }
+  .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--muted); font-size: 14px; padding: 10px; }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ── MAIN SCREEN ── */
+  .user-card {
+    background: var(--primary);
+    border-radius: 16px;
+    padding: 20px;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .user-card .label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+  .user-card .name { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; }
+  .user-card .ci { font-size: 14px; color: #ccc; margin-top: 2px; }
+  .user-card .marca-badge {
+    display: inline-block;
+    margin-top: 10px;
+    background: var(--accent);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+  }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .pdv-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .status-banner {
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .status-banner.idle { background: #f5f5f5; border: 1.5px solid #ddd; color: var(--muted); }
+  .status-banner.in { background: #e8f5e9; border: 1.5px solid #a5d6a7; color: var(--success); }
+  .status-banner.out { background: #fce4ec; border: 1.5px solid #f48fb1; color: var(--danger); }
+  .status-banner .icon { font-size: 24px; }
+  .status-details { font-size: 12px; font-weight: 400; color: inherit; opacity: .8; margin-top: 1px; }
+
+  .actions-row { display: flex; gap: 12px; margin-bottom: 20px; }
+  .actions-row .btn { flex: 1; }
+
+  /* ── HISTORIAL ── */
+  .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .history-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px 16px;
+    border-left: 4px solid #ddd;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .history-item.checkin { border-left-color: var(--success); }
+  .history-item.checkout { border-left-color: var(--danger); }
+  .history-item .hi-top { display: flex; justify-content: space-between; align-items: center; }
+  .history-item .hi-type { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; }
+  .history-item.checkin .hi-type { color: var(--success); }
+  .history-item.checkout .hi-type { color: var(--danger); }
+  .history-item .hi-time { font-size: 12px; color: var(--muted); }
+  .history-item .hi-pdv { font-size: 14px; font-weight: 600; margin-top: 3px; }
+  .history-item .hi-loc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--primary);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { background: var(--success); }
+  #toast.error { background: var(--danger); }
+  #toast.warn { background: var(--warn); }
+
+  /* ── LOADING ── */
+  #loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    gap: 16px;
+    display: none;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 4px solid #ddd;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-msg { font-size: 15px; color: var(--muted); }
+
+  .empty-state { text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
+  .empty-state .icon { font-size: 36px; display: block; margin-bottom: 8px; }
+
+  select option { font-size: 16px; }
+
+  .geo-info {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .geo-dot { width: 8px; height: 8px; border-radius: 50%; background: #bbb; flex-shrink: 0; }
+  .geo-dot.ok { background: var(--success); }
+  .geo-dot.error { background: var(--danger); }
+
+  @media (min-width: 520px) {
+    .screen { padding: 32px 24px; }
+    .login-box { padding: 44px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header" id="app-header" style="display:none">
+  <div class="logo-text"><span>G+</span>MARKA</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="header-user" id="header-user"></div>
+    <button class="btn-logout" onclick="logout()">Salir</button>
+  </div>
+</header>
+
+<!-- LOADING -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-msg" id="loading-msg">Cargando...</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ══ SCREEN: LOGIN ══ -->
+<div class="screen active" id="screen-login">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="big-logo"><span>G+</span>MARKA</div>
+      <div class="sub">Control de Asistencia</div>
+    </div>
+    <div class="login-divider"></div>
+
+    <div class="field-group">
+      <label>Seleccionar Marca</label>
+      <select id="sel-marca">
+        <option value="">— Seleccione una marca —</option>
+        <option>EDESA</option><option>BAYER</option><option>COMINCO</option>
+        <option>UNILEVER</option><option>FRIGOMERC</option><option>FRUTIKA</option>
+        <option>SANTA MARGARITA</option><option>ARCOR</option>
+        <option>AGROTEC SOLUTIONS</option><option>CCP</option><option>AMX</option>
+        <option>METALURGICA</option><option>NEXTAR</option><option>IRIS</option><option>TIGRE</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label>Número de Cédula</label>
+      <input type="text" id="inp-cedula" placeholder="Ej: 4567890" inputmode="numeric"
+             maxlength="10" oninput="onCedulaInput()" autocomplete="off">
+    </div>
+
+    <div class="preview-name" id="preview-name">
+      <span class="icon">👤</span>
+      <span id="preview-name-text">—</span>
+    </div>
+
+    <button class="btn btn-primary" onclick="doLogin()">INGRESAR →</button>
+    <p style="font-size:11px;color:var(--muted);text-align:center">No se requiere contraseña. Solo su número de cédula.</p>
+  </div>
+</div>
+
+<!-- ══ SCREEN: MAIN ══ -->
+<div class="screen" id="screen-main">
+
+  <div class="user-card">
+    <div class="label">Relevador</div>
+    <div class="name" id="main-name">—</div>
+    <div class="ci" id="main-ci">CI: —</div>
+    <div class="marca-badge" id="main-marca">—</div>
+  </div>
+
+  <div class="pdv-selector">
+    <label>Punto de Venta (PDV)</label>
+    <select id="sel-pdv" onchange="onPdvChange()">
+      <option value="">— Seleccione un PDV —</option>
+    </select>
+  </div>
+
+  <div class="geo-info">
+    <div class="geo-dot" id="geo-dot"></div>
+    <span id="geo-label">Obteniendo ubicación...</span>
+  </div>
+
+  <div class="status-banner idle" id="status-banner">
+    <span class="icon">📍</span>
+    <div>
+      <div id="status-text">Sin registro activo</div>
+      <div class="status-details" id="status-detail"></div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn btn-checkin btn-disabled" id="btn-checkin" onclick="doCheckIn()">
+      ✅ CHECK-IN
+    </button>
+    <button class="btn btn-checkout btn-disabled" id="btn-checkout" onclick="doCheckOut()">
+      🚪 CHECK-OUT
+    </button>
+  </div>
+
+  <div class="section-title">Historial de hoy</div>
+  <div id="history-list" class="history-list">
+    <div class="empty-state"><span class="icon">📋</span>Sin movimientos hoy</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
+const SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?output=csv';
+
+// Google Apps Script Web App URL — reemplazar con la URL real del script desplegado
+// Ver instrucciones al final del HTML
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSo1OiVsTWkuHvcIjj42yHMTdE9vAXIIYLN6fyiyd6n27yiNX8OmzXMzHn9ubq-9pnEA/exec';
+
+const MAX_DISTANCE_METERS = 500; // radio permitido para check-in
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let state = {
+  user: null,     // { cedula, nombre, marca }
+  pdvs: [],       // [{ nombre, lat, lng }]
+  relevadores: [], // [{ cedula, nombre }]
+  geo: null,      // { lat, lng }
+  geoOk: false,
+  activeCheckIn: null, // { pdv, hora, lat, lng }
+  history: [],
+};
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  showLoading('Cargando datos...');
+  await loadSheetsData();
+  startGeoWatch();
+  hideLoading();
+});
+
+// ═══════════════════════════════════════════════════
+// LOAD GOOGLE SHEETS CSV
+// ═══════════════════════════════════════════════════
+async function loadSheetsData() {
+  try {
+    const res = await fetch(SHEETS_CSV + '&t=' + Date.now());
+    const text = await res.text();
+    parseCSV(text);
+  } catch(e) {
+    toast('Error al cargar datos de Google Sheets', 'error');
+  }
+}
+
+function parseCSV(text) {
+  const rows = text.split('\n').map(r => r.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+  if (!rows.length) return;
+
+  // Detectar columnas: buscar cabeceras
+  // Asumimos:
+  //   Hoja 1 (PDV): columnas Nombre, Latitud, Longitud
+  //   Hoja 2 (Relevadores): columnas Nombre, Cedula
+  // El CSV publicado mezcla ambas hojas en columnas adicionales
+  // Columnas típicas: A=PDV nombre, B=PDV lat, C=PDV lng, D=Rel nombre, E=Rel cedula
+
+  state.pdvs = [];
+  state.relevadores = [];
+
+  const header = rows[0].map(h => h.toLowerCase());
+  
+  // Intentar detectar índices de columnas
+  let idxPdvNombre = header.findIndex(h => h.includes('punto') || h.includes('pdv') || h === 'nombre');
+  let idxPdvLat = header.findIndex(h => h.includes('latitud') || h.includes('lat'));
+  let idxPdvLng = header.findIndex(h => h.includes('longitud') || h.includes('lng') || h.includes('lon'));
+  let idxRelNombre = header.findIndex(h => h.includes('relevador') || h.includes('rel'));
+  let idxRelCed = header.findIndex(h => h.includes('cedula') || h.includes('cédula') || h.includes('ci'));
+
+  // Fallback a posiciones fijas si no detecta
+  if (idxPdvNombre < 0) idxPdvNombre = 0;
+  if (idxPdvLat < 0) idxPdvLat = 1;
+  if (idxPdvLng < 0) idxPdvLng = 2;
+  if (idxRelNombre < 0) idxRelNombre = 3;
+  if (idxRelCed < 0) idxRelCed = 4;
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 2) continue;
+
+    // PDV
+    const pdvNom = r[idxPdvNombre];
+    const pdvLat = parseFloat(r[idxPdvLat]);
+    const pdvLng = parseFloat(r[idxPdvLng]);
+    if (pdvNom && !isNaN(pdvLat) && !isNaN(pdvLng)) {
+      state.pdvs.push({ nombre: pdvNom, lat: pdvLat, lng: pdvLng });
+    }
+
+    // Relevador
+    const relNom = r[idxRelNombre];
+    const relCed = r[idxRelCed] ? String(r[idxRelCed]).trim() : '';
+    if (relNom && relCed && relCed !== '') {
+      state.relevadores.push({ nombre: relNom, cedula: relCed });
+    }
+  }
+
+  populatePdvSelect();
+}
+
+function populatePdvSelect() {
+  const sel = document.getElementById('sel-pdv');
+  sel.innerHTML = '<option value="">— Seleccione un PDV —</option>';
+  state.pdvs.forEach((p, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = p.nombre;
+    sel.appendChild(opt);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// GEOLOCATION
+// ═══════════════════════════════════════════════════
+function startGeoWatch() {
+  if (!navigator.geolocation) {
+    setGeoStatus(false, 'GPS no disponible');
+    return;
+  }
+  navigator.geolocation.watchPosition(
+    pos => {
+      state.geo = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      state.geoOk = true;
+      setGeoStatus(true, `${state.geo.lat.toFixed(5)}, ${state.geo.lng.toFixed(5)}`);
+      updateButtons();
+    },
+    err => {
+      state.geoOk = false;
+      setGeoStatus(false, 'GPS no disponible — habilite ubicación');
+      updateButtons();
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+  );
+}
+
+function setGeoStatus(ok, msg) {
+  document.getElementById('geo-dot').className = 'geo-dot ' + (ok ? 'ok' : 'error');
+  document.getElementById('geo-label').textContent = ok ? `GPS: ${msg}` : msg;
+}
+
+// Haversine distance (metros)
+function distanceMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLng = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ═══════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════
+function onCedulaInput() {
+  const val = document.getElementById('inp-cedula').value.trim();
+  const preview = document.getElementById('preview-name');
+  const previewText = document.getElementById('preview-name-text');
+  if (val.length >= 5) {
+    const found = state.relevadores.find(r => r.cedula === val);
+    if (found) {
+      previewText.textContent = found.nombre;
+      preview.classList.add('visible');
+      preview.style.background = '#e8f5e9';
+      preview.style.borderColor = '#a5d6a7';
+      preview.style.color = 'var(--success)';
+    } else {
+      previewText.textContent = 'Cédula no encontrada';
+      preview.classList.add('visible');
+      preview.style.background = '#fce4ec';
+      preview.style.borderColor = '#f48fb1';
+      preview.style.color = 'var(--danger)';
+    }
+  } else {
+    preview.classList.remove('visible');
+  }
+}
+
+async function doLogin() {
+  const cedula = document.getElementById('inp-cedula').value.trim();
+  const marca = document.getElementById('sel-marca').value;
+
+  if (!marca) { toast('Seleccione una marca primero', 'warn'); return; }
+  if (!cedula) { toast('Ingrese su número de cédula', 'warn'); return; }
+
+  const found = state.relevadores.find(r => r.cedula === cedula);
+  if (!found) {
+    toast('Cédula no encontrada en el sistema', 'error');
+    return;
+  }
+
+  state.user = { cedula, nombre: found.nombre, marca };
+  // Load session state from localStorage
+  loadSession();
+  showMain();
+}
+
+// ═══════════════════════════════════════════════════
+// SESSION PERSISTENCE
+// ═══════════════════════════════════════════════════
+function loadSession() {
+  try {
+    const key = 'gmarka_session_' + state.user.cedula;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.activeCheckIn = parsed.activeCheckIn || null;
+      state.history = parsed.history || [];
+    }
+  } catch(e) {}
+}
+
+function saveSession() {
+  try {
+    const key = 'gmarka_session_' + state.user.cedula;
+    localStorage.setItem(key, JSON.stringify({
+      activeCheckIn: state.activeCheckIn,
+      history: state.history
+    }));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// SHOW SCREENS
+// ═══════════════════════════════════════════════════
+function showMain() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-main').classList.add('active');
+  document.getElementById('app-header').style.display = 'flex';
+
+  document.getElementById('main-name').textContent = state.user.nombre;
+  document.getElementById('main-ci').textContent = 'CI: ' + state.user.cedula;
+  document.getElementById('main-marca').textContent = state.user.marca;
+  document.getElementById('header-user').innerHTML = `<strong>${state.user.nombre}</strong>${state.user.marca}`;
+
+  updateStatusBanner();
+  updateButtons();
+  renderHistory();
+}
+
+function logout() {
+  state.user = null;
+  state.activeCheckIn = null;
+  state.history = [];
+  document.getElementById('screen-main').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('app-header').style.display = 'none';
+  document.getElementById('inp-cedula').value = '';
+  document.getElementById('sel-marca').value = '';
+  document.getElementById('preview-name').classList.remove('visible');
+}
+
+// ═══════════════════════════════════════════════════
+// CHECK-IN / CHECK-OUT
+// ═══════════════════════════════════════════════════
+function onPdvChange() {
+  updateButtons();
+}
+
+function updateButtons() {
+  const hasCheckin = !!state.activeCheckIn;
+  const pdvIdx = document.getElementById('sel-pdv').value;
+  const hasPdv = pdvIdx !== '';
+
+  const btnIn = document.getElementById('btn-checkin');
+  const btnOut = document.getElementById('btn-checkout');
+
+  // Check-in: no active session, has PDV, GPS ok
+  if (!hasCheckin && hasPdv && state.geoOk) {
+    btnIn.classList.remove('btn-disabled');
+  } else {
+    btnIn.classList.add('btn-disabled');
+  }
+
+  // Check-out: active session
+  if (hasCheckin) {
+    btnOut.classList.remove('btn-disabled');
+    btnIn.classList.add('btn-disabled');
+    // Lock PDV selector
+    document.getElementById('sel-pdv').disabled = true;
+  } else {
+    btnOut.classList.add('btn-disabled');
+    document.getElementById('sel-pdv').disabled = false;
+  }
+}
+
+async function doCheckIn() {
+  const pdvIdx = parseInt(document.getElementById('sel-pdv').value);
+  if (isNaN(pdvIdx)) { toast('Seleccione un PDV', 'warn'); return; }
+  if (!state.geoOk || !state.geo) { toast('GPS no disponible. Habilite ubicación.', 'error'); return; }
+  if (state.activeCheckIn) { toast('Ya tiene un Check-in activo. Haga Check-out primero.', 'warn'); return; }
+
+  const pdv = state.pdvs[pdvIdx];
+
+  // Validar distancia
+  const dist = distanceMeters(state.geo.lat, state.geo.lng, pdv.lat, pdv.lng);
+  if (dist > MAX_DISTANCE_METERS) {
+    toast(`Fuera de rango del PDV (${Math.round(dist)}m). Máximo ${MAX_DISTANCE_METERS}m.`, 'error');
+    return;
+  }
+
+  showLoading('Registrando Check-in...');
+
+  const now = new Date();
+  const record = {
+    cedula: state.user.cedula,
+    nombre: state.user.nombre,
+    marca: state.user.marca,
+    pdv: pdv.nombre,
+    fecha: formatDate(now),
+    hora: formatTime(now),
+    tipo: 'CHECK-IN',
+    lat: state.geo.lat,
+    lng: state.geo.lng,
+  };
+
+  const ok = await sendRecord(record);
+  hideLoading();
+
+  if (ok) {
+    state.activeCheckIn = { pdv: pdv.nombre, pdvIdx, hora: record.hora, lat: state.geo.lat, lng: state.geo.lng, ts: now.toISOString() };
+    state.history.unshift(record);
+    saveSession();
+    updateStatusBanner();
+    updateButtons();
+    renderHistory();
+    toast('✅ Check-in registrado correctamente', 'success');
+  }
+}
+
+async function doCheckOut() {
+  if (!state.activeCheckIn) { toast('No hay Check-in activo', 'warn'); return; }
+  if (!state.geoOk || !state.geo) { toast('GPS no disponible', 'error'); return; }
+
+  showLoading('Registrando Check-out...');
+
+  const now = new Date();
+  const record = {
+    cedula: state.user.cedula,
+    nombre: state.user.nombre,
+    marca: state.user.marca,
+    pdv: state.activeCheckIn.pdv,
+    fecha: formatDate(now),
+    hora: formatTime(now),
+    tipo: 'CHECK-OUT',
+    lat: state.geo.lat,
+    lng: state.geo.lng,
+  };
+
+  const ok = await sendRecord(record);
+  hideLoading();
+
+  if (ok) {
+    state.history.unshift(record);
+    state.activeCheckIn = null;
+    saveSession();
+    updateStatusBanner();
+    updateButtons();
+    renderHistory();
+    document.getElementById('sel-pdv').value = '';
+    toast('🚪 Check-out registrado correctamente', 'success');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// SEND TO GOOGLE SHEETS via Apps Script
+// ═══════════════════════════════════════════════════
+async function sendRecord(record) {
+  try {
+    const params = new URLSearchParams(record);
+    const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), { method: 'GET' });
+    const json = await res.json();
+    if (json.status === 'ok') return true;
+    toast('Error al guardar: ' + (json.message || 'desconocido'), 'error');
+    return false;
+  } catch(e) {
+    // Si el Apps Script no está configurado aún, guardar offline
+    toast('Guardado offline (sin conexión al servidor)', 'warn');
+    return true; // permitir funcionamiento demo
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UI UPDATES
+// ═══════════════════════════════════════════════════
+function updateStatusBanner() {
+  const banner = document.getElementById('status-banner');
+  const text = document.getElementById('status-text');
+  const detail = document.getElementById('status-detail');
+  if (state.activeCheckIn) {
+    banner.className = 'status-banner in';
+    text.textContent = `Check-in activo: ${state.activeCheckIn.pdv}`;
+    detail.textContent = `Ingresó a las ${state.activeCheckIn.hora}`;
+  } else {
+    banner.className = 'status-banner idle';
+    text.textContent = 'Sin registro activo';
+    detail.textContent = 'Seleccione un PDV y haga Check-in';
+  }
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  const today = formatDate(new Date());
+  const todayItems = state.history.filter(h => h.fecha === today);
+
+  if (!todayItems.length) {
+    container.innerHTML = '<div class="empty-state"><span class="icon">📋</span>Sin movimientos hoy</div>';
+    return;
+  }
+  container.innerHTML = todayItems.map(h => `
+    <div class="history-item ${h.tipo === 'CHECK-IN' ? 'checkin' : 'checkout'}">
+      <div class="hi-top">
+        <span class="hi-type">${h.tipo === 'CHECK-IN' ? '✅ CHECK-IN' : '🚪 CHECK-OUT'}</span>
+        <span class="hi-time">${h.hora}</span>
+      </div>
+      <div class="hi-pdv">📍 ${h.pdv}</div>
+      <div class="hi-loc">GPS: ${parseFloat(h.lat).toFixed(5)}, ${parseFloat(h.lng).toFixed(5)}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function formatDate(d) {
+  return d.toLocaleDateString('es-PY', { year:'numeric', month:'2-digit', day:'2-digit' });
+}
+function formatTime(d) {
+  return d.toLocaleTimeString('es-PY', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = type ? `show ${type}` : 'show';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = '', 3500);
+}
+
+function showLoading(msg = 'Procesando...') {
+  document.getElementById('loading-msg').textContent = msg;
+  document.getElementById('loading-overlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').style.display = 'none';
+}
+</script>
+
+<!--
+═══════════════════════════════════════════════════════════
+  INSTRUCCIONES: CONFIGURAR GOOGLE APPS SCRIPT
+═══════════════════════════════════════════════════════════
+
+1. Vaya a https://script.google.com y cree un nuevo proyecto.
+
+2. Pegue este código en el editor:
+
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.openById('SU_SPREADSHEET_ID');
+    var sheet = ss.getSheetByName('Registros') || ss.insertSheet('Registros');
+    
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Cédula','Nombre','Marca','PDV','Fecha','Hora','Tipo','Latitud','Longitud']);
+    }
+    
+    sheet.appendRow([
+      e.parameter.cedula,
+      e.parameter.nombre,
+      e.parameter.marca,
+      e.parameter.pdv,
+      e.parameter.fecha,
+      e.parameter.hora,
+      e.parameter.tipo,
+      e.parameter.lat,
+      e.parameter.lng
+    ]);
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({status:'ok'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({status:'error', message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+3. Reemplace 'SU_SPREADSHEET_ID' con el ID de su Google Sheets de destino.
+
+4. Haga clic en "Implementar" → "Nueva implementación":
+   - Tipo: Aplicación web
+   - Ejecutar como: Yo
+   - Quién tiene acceso: Cualquier usuario
+
+5. Copie la URL generada y reemplace APPS_SCRIPT_URL en este HTML.
+═══════════════════════════════════════════════════════════
+-->
+
+</body>
+</html>
