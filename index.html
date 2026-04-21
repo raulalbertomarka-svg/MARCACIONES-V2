@@ -493,19 +493,29 @@ function csvRows(text) {
   }).filter(r => r.some(c => c !== ''));
 }
 
+function parseCoord(val) {
+  if (!val) return NaN;
+  let s = String(val).trim().replace(/"/g, '');
+  if (s.includes(',') && !s.includes('.')) s = s.replace(',', '.');
+  return parseFloat(s);
+}
+
 function parsePDV(text) {
-  // Hoja 1: Columna A = Nombre PDV, B = Latitud, C = Longitud
   state.pdvs = [];
   const rows = csvRows(text);
+  console.log('=== HOJA 1 RAW (primeras 4 filas) ===');
+  rows.slice(0, 4).forEach((r, i) => console.log('Fila ' + i + ':', JSON.stringify(r)));
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
-    const nombre = r[0];
-    const lat = parseFloat(r[1]);
-    const lng = parseFloat(r[2]);
+    if (!r || r.length < 3) continue;
+    const nombre = r[0] ? r[0].trim() : '';
+    const lat = parseCoord(r[1]);
+    const lng = parseCoord(r[2]);
     if (nombre && !isNaN(lat) && !isNaN(lng)) {
       state.pdvs.push({ nombre, lat, lng });
     }
   }
+  console.log('PDVs cargados:', state.pdvs.length, JSON.stringify(state.pdvs.slice(0, 2)));
   populatePdvSelect();
 }
 
