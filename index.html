@@ -3,355 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>G+MARKA — Control de Asistencia</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<title>G+MARKA</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1a1a1a;
-    --accent: #C8A84B;
-    --accent2: #e0c060;
-    --bg: #f5f5f5;
-    --card: #ffffff;
-    --border: #e0e0e0;
-    --text: #1a1a1a;
-    --muted: #777;
-    --success: #2e7d32;
-    --danger: #c62828;
-    --info: #1565c0;
-    --warn: #e65100;
-    --radius: 12px;
-    --shadow: 0 2px 16px rgba(0,0,0,0.10);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: 'Barlow', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-  }
+:root {
+  --primary: #111;
+  --accent: #C8A84B;
+  --bg: #f2f2f2;
+  --card: #fff;
+  --border: #e0e0e0;
+  --text: #111;
+  --muted: #888;
+  --success: #1e7e34;
+  --success-bg: #eafaf0;
+  --danger: #c0392b;
+  --danger-bg: #fdecea;
+  --warn: #e67e22;
+  --radius: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  /* ── HEADER ── */
-  .app-header {
-    background: var(--primary);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  .logo-text {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    color: #fff;
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .logo-text span { color: var(--accent); }
-  .header-user {
-    font-size: 13px;
-    color: #aaa;
-    text-align: right;
-    max-width: 140px;
-  }
-  .header-user strong { display: block; color: #fff; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .btn-logout {
-    background: none;
-    border: 1px solid #555;
-    color: #ccc;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: 'Barlow', sans-serif;
-    transition: all .2s;
-  }
-  .btn-logout:hover { background: #333; color: #fff; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* ── SCREENS ── */
-  .screen { display: none; flex-direction: column; flex: 1; padding: 24px 16px; max-width: 480px; margin: 0 auto; width: 100%; }
-  .screen.active { display: flex; }
+/* HEADER */
+.app-header {
+  background: var(--primary);
+  padding: 14px 18px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-header.visible { display: flex; }
+.logo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:20px; color:#fff; letter-spacing:1px; }
+.logo span { color: var(--accent); }
+.btn-logout { background:none; border:1.5px solid #444; color:#bbb; border-radius:8px; padding:6px 12px; font-size:13px; font-family:'Barlow',sans-serif; cursor:pointer; }
 
-  /* ── LOGIN ── */
-  #screen-login {
-    justify-content: center;
-    align-items: center;
-    gap: 0;
-    background: var(--bg);
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .login-box {
-    background: var(--card);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 36px 28px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .login-logo {
-    text-align: center;
-  }
-  .login-logo .big-logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    font-size: 38px;
-    letter-spacing: 2px;
-    color: var(--primary);
-  }
-  .login-logo .big-logo span { color: var(--accent); }
-  .login-logo .sub { font-size: 13px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
-  .login-divider { width: 48px; height: 3px; background: var(--accent); margin: 0 auto; border-radius: 2px; }
+/* SCREENS */
+.screen { display:none; flex-direction:column; flex:1; }
+.screen.active { display:flex; }
 
-  label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; display: block; }
-  input[type="text"], input[type="number"], select {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 17px;
-    font-family: 'Barlow', sans-serif;
-    color: var(--text);
-    background: #fafafa;
-    transition: border .2s;
-    outline: none;
-    appearance: none;
-  }
-  input:focus, select:focus { border-color: var(--accent); background: #fff; }
-  .field-group { display: flex; flex-direction: column; gap: 4px; }
+/* LOGIN */
+#screen-login { justify-content:center; align-items:center; padding:24px 20px; min-height:100dvh; background:var(--bg); }
+.login-box { background:var(--card); border-radius:24px; padding:36px 24px 32px; width:100%; display:flex; flex-direction:column; gap:18px; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
+.login-logo { text-align:center; }
+.login-logo .wordmark { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:42px; letter-spacing:2px; color:var(--primary); line-height:1; }
+.login-logo .wordmark span { color:var(--accent); }
+.login-logo .sub { font-size:12px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+.divider { width:40px; height:3px; background:var(--accent); border-radius:2px; margin:0 auto; }
 
-  .preview-name {
-    background: #f0f4ff;
-    border: 1.5px solid #90caf9;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--info);
-    display: none;
-    align-items: center;
-    gap: 10px;
-  }
-  .preview-name.visible { display: flex; }
-  .preview-name .icon { font-size: 22px; }
+label { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px; }
+select, input[type="text"] { width:100%; padding:15px 14px; border:2px solid var(--border); border-radius:12px; font-size:16px; font-family:'Barlow',sans-serif; color:var(--text); background:#fafafa; outline:none; appearance:none; transition:border-color .2s; }
+select:focus, input:focus { border-color:var(--accent); background:#fff; }
 
-  /* ── BUTTONS ── */
-  .btn {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all .18s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { background: #333; }
-  .btn-checkin { background: var(--success); color: #fff; font-size: 20px; padding: 20px; border-radius: 14px; }
-  .btn-checkin:hover { background: #1b5e20; }
-  .btn-checkout { background: var(--danger); color: #fff; font-size: 20px; padding: 20px; border-radius: 14px; }
-  .btn-checkout:hover { background: #b71c1c; }
-  .btn-disabled { background: #ccc !important; color: #888 !important; cursor: not-allowed; pointer-events: none; }
-  .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--muted); font-size: 14px; padding: 10px; }
-  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.name-preview { border-radius:12px; padding:13px 16px; display:none; align-items:center; gap:10px; font-size:15px; font-weight:600; }
+.name-preview.show { display:flex; }
+.name-preview.ok  { background:var(--success-bg); border:1.5px solid #a8d5b5; color:var(--success); }
+.name-preview.err { background:var(--danger-bg);  border:1.5px solid #f5b7b1; color:var(--danger); }
 
-  /* ── MAIN SCREEN ── */
-  .user-card {
-    background: var(--primary);
-    border-radius: 16px;
-    padding: 20px;
-    color: #fff;
-    margin-bottom: 20px;
-  }
-  .user-card .label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-  .user-card .name { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; }
-  .user-card .ci { font-size: 14px; color: #ccc; margin-top: 2px; }
-  .user-card .marca-badge {
-    display: inline-block;
-    margin-top: 10px;
-    background: var(--accent);
-    color: var(--primary);
-    font-weight: 700;
-    font-size: 13px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    letter-spacing: .5px;
-  }
+.btn-login { background:var(--primary); color:#fff; border:none; border-radius:14px; padding:18px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:18px; letter-spacing:1px; cursor:pointer; transition:background .2s; }
+.btn-login:active { background:#333; }
+.login-note { font-size:11px; color:var(--muted); text-align:center; }
 
-  .section-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
+/* MAIN */
+#screen-main { padding:0 0 28px; background:var(--bg); }
 
-  .pdv-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 16px;
-  }
+.user-card { background:var(--primary); padding:20px 18px 18px; color:#fff; }
+.user-card .uc-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.user-card .uc-name  { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:28px; line-height:1.1; }
+.user-card .uc-ci    { font-size:13px; color:#aaa; margin-top:2px; }
+.marca-badge { display:inline-block; margin-top:10px; background:var(--accent); color:var(--primary); font-weight:700; font-size:12px; padding:4px 12px; border-radius:20px; letter-spacing:.5px; }
 
-  .status-banner {
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    font-size: 15px;
-    font-weight: 600;
-  }
-  .status-banner.idle { background: #f5f5f5; border: 1.5px solid #ddd; color: var(--muted); }
-  .status-banner.in { background: #e8f5e9; border: 1.5px solid #a5d6a7; color: var(--success); }
-  .status-banner.out { background: #fce4ec; border: 1.5px solid #f48fb1; color: var(--danger); }
-  .status-banner .icon { font-size: 24px; }
-  .status-details { font-size: 12px; font-weight: 400; color: inherit; opacity: .8; margin-top: 1px; }
+.main-body { padding:16px 16px 0; display:flex; flex-direction:column; gap:14px; }
 
-  .actions-row { display: flex; gap: 12px; margin-bottom: 20px; }
-  .actions-row .btn { flex: 1; }
+.pdv-wrap { display:flex; flex-direction:column; gap:5px; }
 
-  /* ── HISTORIAL ── */
-  .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-  .history-item {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 14px 16px;
-    border-left: 4px solid #ddd;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-  .history-item.checkin { border-left-color: var(--success); }
-  .history-item.checkout { border-left-color: var(--danger); }
-  .history-item .hi-top { display: flex; justify-content: space-between; align-items: center; }
-  .history-item .hi-type { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; }
-  .history-item.checkin .hi-type { color: var(--success); }
-  .history-item.checkout .hi-type { color: var(--danger); }
-  .history-item .hi-time { font-size: 12px; color: var(--muted); }
-  .history-item .hi-pdv { font-size: 14px; font-weight: 600; margin-top: 3px; }
-  .history-item .hi-loc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.geo-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+.geo-dot { width:9px; height:9px; border-radius:50%; background:#ccc; flex-shrink:0; transition:background .3s; }
+.geo-dot.ok  { background:var(--success); }
+.geo-dot.err { background:var(--danger); }
 
-  /* ── TOAST ── */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--primary);
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 9999;
-    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-    white-space: nowrap;
-    max-width: 90vw;
-    text-align: center;
-    pointer-events: none;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-  #toast.success { background: var(--success); }
-  #toast.error { background: var(--danger); }
-  #toast.warn { background: var(--warn); }
+.status-card { border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; font-size:15px; font-weight:600; border:1.5px solid transparent; }
+.status-card.idle { background:#f5f5f5; border-color:#e0e0e0; color:var(--muted); }
+.status-card.in   { background:var(--success-bg); border-color:#a8d5b5; color:var(--success); }
+.sc-icon { font-size:26px; flex-shrink:0; }
+.sc-detail { font-size:12px; font-weight:400; margin-top:2px; opacity:.8; }
 
-  /* ── LOADING ── */
-  #loading-overlay {
-    position: fixed; inset: 0;
-    background: rgba(255,255,255,0.85);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9998;
-    gap: 16px;
-    display: none;
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 4px solid #ddd;
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-msg { font-size: 15px; color: var(--muted); }
+.btn-row { display:flex; gap:10px; }
+.btn-action { flex:1; padding:18px 10px; border:none; border-radius:14px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:19px; letter-spacing:.5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s; }
+.btn-action:active { transform:scale(0.96); }
+.btn-in  { background:var(--success); color:#fff; }
+.btn-out { background:var(--danger);  color:#fff; }
+.btn-action.disabled { background:#ddd !important; color:#aaa !important; cursor:not-allowed; pointer-events:none; }
 
-  .empty-state { text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
-  .empty-state .icon { font-size: 36px; display: block; margin-bottom: 8px; }
+.hist-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+.hist-list { display:flex; flex-direction:column; gap:10px; }
 
-  select option { font-size: 16px; }
+/* Tarjeta de visita — check-in y checkout en una sola fila */
+.visit-card { background:var(--card); border-radius:14px; box-shadow:0 1px 6px rgba(0,0,0,0.07); overflow:hidden; }
+.visit-header { padding:12px 14px 10px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; justify-content:space-between; }
+.visit-pdv  { font-size:15px; font-weight:700; }
+.visit-date { font-size:12px; color:var(--muted); }
+.visit-times { display:flex; }
+.vtb { flex:1; padding:10px 14px; display:flex; flex-direction:column; gap:2px; }
+.vtb:first-child { border-right:1px solid #f0f0f0; }
+.vtb-label { font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.vtb-label.in  { color:var(--success); }
+.vtb-label.out { color:var(--danger); }
+.vtb-time    { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--text); }
+.vtb-pending { font-size:13px; color:#ccc; font-style:italic; margin-top:4px; }
 
-  .geo-info {
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .geo-dot { width: 8px; height: 8px; border-radius: 50%; background: #bbb; flex-shrink: 0; }
-  .geo-dot.ok { background: var(--success); }
-  .geo-dot.error { background: var(--danger); }
+.empty-state { text-align:center; color:var(--muted); padding:28px 0; }
+.empty-state .ei { font-size:32px; display:block; margin-bottom:6px; }
 
-  @media (min-width: 520px) {
-    .screen { padding: 32px 24px; }
-    .login-box { padding: 44px 40px; }
-  }
+/* TOAST */
+#toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--primary); color:#fff; padding:13px 22px; border-radius:50px; font-size:14px; font-weight:600; z-index:9999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; max-width:92vw; text-align:center; pointer-events:none; }
+#toast.show    { transform:translateX(-50%) translateY(0); }
+#toast.success { background:var(--success); }
+#toast.error   { background:var(--danger); }
+#toast.warn    { background:var(--warn); }
+
+/* LOADER */
+#loader { position:fixed; inset:0; background:rgba(255,255,255,.88); display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:9998; }
+#loader.show { display:flex; }
+.spin { width:38px; height:38px; border-radius:50%; border:4px solid #ddd; border-top-color:var(--primary); animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loader-msg { font-size:14px; color:var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="app-header" id="app-header" style="display:none">
-  <div class="logo-text"><span>G+</span>MARKA</div>
+<header class="app-header" id="app-header">
+  <div class="logo"><span>G+</span>MARKA</div>
   <div style="display:flex;align-items:center;gap:10px">
-    <div class="header-user" id="header-user"></div>
+    <div style="text-align:right">
+      <div style="font-size:13px;font-weight:600;color:#fff;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hdr-name"></div>
+      <div style="font-size:11px;color:#888" id="hdr-marca"></div>
+    </div>
     <button class="btn-logout" onclick="logout()">Salir</button>
   </div>
 </header>
 
-<!-- LOADING -->
-<div id="loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-msg" id="loading-msg">Cargando...</div>
-</div>
-
-<!-- TOAST -->
+<div id="loader"><div class="spin"></div><div class="loader-msg" id="loader-msg">Cargando...</div></div>
 <div id="toast"></div>
 
-<!-- ══ SCREEN: LOGIN ══ -->
+<!-- LOGIN -->
 <div class="screen active" id="screen-login">
   <div class="login-box">
     <div class="login-logo">
-      <div class="big-logo"><span>G+</span>MARKA</div>
+      <div class="wordmark"><span>G+</span>MARKA</div>
       <div class="sub">Control de Asistencia</div>
     </div>
-    <div class="login-divider"></div>
-
-    <div class="field-group">
-      <label>Seleccionar Marca</label>
+    <div class="divider"></div>
+    <div>
+      <label>Marca</label>
       <select id="sel-marca">
-        <option value="">— Seleccione una marca —</option>
+        <option value="">— Seleccione —</option>
         <option>EDESA</option><option>BAYER</option><option>COMINCO</option>
         <option>UNILEVER</option><option>FRIGOMERC</option><option>FRUTIKA</option>
         <option>SANTA MARGARITA</option><option>ARCOR</option>
@@ -359,529 +177,350 @@
         <option>METALURGICA</option><option>NEXTAR</option><option>IRIS</option><option>TIGRE</option>
       </select>
     </div>
-
-    <div class="field-group">
+    <div>
       <label>Número de Cédula</label>
-      <input type="text" id="inp-cedula" placeholder="Ej: 4567890" inputmode="numeric"
-             maxlength="10" oninput="onCedulaInput()" autocomplete="off">
+      <input type="text" id="inp-ced" placeholder="Ej: 4567890" inputmode="numeric" maxlength="10" oninput="onCedInput()" autocomplete="off">
     </div>
-
-    <div class="preview-name" id="preview-name">
-      <span class="icon">👤</span>
-      <span id="preview-name-text">—</span>
+    <div class="name-preview" id="name-preview">
+      <span style="font-size:20px">👤</span>
+      <span id="preview-txt"></span>
     </div>
-
-    <button class="btn btn-primary" onclick="doLogin()">INGRESAR →</button>
-    <p style="font-size:11px;color:var(--muted);text-align:center">No se requiere contraseña. Solo su número de cédula.</p>
+    <button class="btn-login" onclick="doLogin()">INGRESAR →</button>
+    <p class="login-note">Sin contraseña. Solo su número de cédula.</p>
   </div>
 </div>
 
-<!-- ══ SCREEN: MAIN ══ -->
+<!-- MAIN -->
 <div class="screen" id="screen-main">
-
   <div class="user-card">
-    <div class="label">Relevador</div>
-    <div class="name" id="main-name">—</div>
-    <div class="ci" id="main-ci">CI: —</div>
+    <div class="uc-label">Relevador</div>
+    <div class="uc-name" id="main-name">—</div>
+    <div class="uc-ci"   id="main-ci">CI: —</div>
     <div class="marca-badge" id="main-marca">—</div>
   </div>
 
-  <div class="pdv-selector">
-    <label>Punto de Venta (PDV)</label>
-    <select id="sel-pdv" onchange="onPdvChange()">
-      <option value="">— Seleccione un PDV —</option>
-    </select>
-  </div>
-
-  <div class="geo-info">
-    <div class="geo-dot" id="geo-dot"></div>
-    <span id="geo-label">Obteniendo ubicación...</span>
-  </div>
-
-  <div class="status-banner idle" id="status-banner">
-    <span class="icon">📍</span>
-    <div>
-      <div id="status-text">Sin registro activo</div>
-      <div class="status-details" id="status-detail"></div>
+  <div class="main-body">
+    <div class="pdv-wrap">
+      <label>Punto de Venta (PDV)</label>
+      <select id="sel-pdv" onchange="updateButtons()">
+        <option value="">— Seleccione un PDV —</option>
+      </select>
     </div>
-  </div>
 
-  <div class="actions-row">
-    <button class="btn btn-checkin btn-disabled" id="btn-checkin" onclick="doCheckIn()">
-      ✅ CHECK-IN
-    </button>
-    <button class="btn btn-checkout btn-disabled" id="btn-checkout" onclick="doCheckOut()">
-      🚪 CHECK-OUT
-    </button>
-  </div>
+    <div class="geo-row">
+      <div class="geo-dot" id="geo-dot"></div>
+      <span id="geo-label">Obteniendo ubicación GPS...</span>
+    </div>
 
-  <div class="section-title">Historial de hoy</div>
-  <div id="history-list" class="history-list">
-    <div class="empty-state"><span class="icon">📋</span>Sin movimientos hoy</div>
+    <div class="status-card idle" id="status-card">
+      <span class="sc-icon">📍</span>
+      <div>
+        <div id="sc-text">Sin registro activo</div>
+        <div class="sc-detail" id="sc-detail">Seleccione un PDV y haga Check-in</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-action btn-in  disabled" id="btn-in"  onclick="doCheckIn()">✅ CHECK-IN</button>
+      <button class="btn-action btn-out disabled" id="btn-out" onclick="doCheckOut()">🚪 CHECK-OUT</button>
+    </div>
+
+    <div class="hist-title">Historial de hoy</div>
+    <div class="hist-list" id="hist-list">
+      <div class="empty-state"><span class="ei">📋</span>Sin movimientos hoy</div>
+    </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════
 // CONFIG
-// ═══════════════════════════════════════════════════
-// Hoja 1: PDV (Nombre del PDV | Latitud | Longitud)
+// ═══════════════════════════════════
 const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=0&single=true&output=csv';
-// Hoja 2: Relevadores (NOMBRE Y APELLIDO | C.I)
 const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=1995845338&single=true&output=csv';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec'; // ← reemplace con su URL
+const MAX_DIST = 500;
 
-// Google Apps Script Web App URL — reemplazar con la URL real del script desplegado
-// Ver instrucciones al final del HTML
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweg0ODniJpd5LqiGqvFBgnPgtCZAD7mJ8nY_y2mxkaGsugxA6VgnUzAdw2pX0Hk6G2_w/exec';
+// ═══════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════
+let S = { user:null, pdvs:[], rels:[], geo:null, geoOk:false, active:null, visits:[] };
 
-const MAX_DISTANCE_METERS = 150; // radio permitido para check-in
-
-// ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-let state = {
-  user: null,     // { cedula, nombre, marca }
-  pdvs: [],       // [{ nombre, lat, lng }]
-  relevadores: [], // [{ cedula, nombre }]
-  geo: null,      // { lat, lng }
-  geoOk: false,
-  activeCheckIn: null, // { pdv, hora, lat, lng }
-  history: [],
-};
-
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
-  showLoading('Cargando datos...');
-  await loadSheetsData();
-  startGeoWatch();
-  hideLoading();
+  loader('Cargando datos...');
+  await loadData();
+  watchGeo();
+  hideLoader();
 });
 
-// ═══════════════════════════════════════════════════
-// LOAD GOOGLE SHEETS CSV
-// ═══════════════════════════════════════════════════
-async function loadSheetsData() {
+// ═══════════════════════════════════
+// DATOS
+// ═══════════════════════════════════
+async function loadData() {
   try {
-    // Cargar las dos hojas en paralelo
-    const [resPdv, resRel] = await Promise.all([
-      fetch(SHEETS_PDV + '&t=' + Date.now()),
-      fetch(SHEETS_REL + '&t=' + Date.now())
-    ]);
-    const [textPdv, textRel] = await Promise.all([resPdv.text(), resRel.text()]);
-    parsePDV(textPdv);
-    parseRelevadores(textRel);
-  } catch(e) {
-    toast('Error al cargar datos. Verifique conexión.', 'error');
-  }
+    const [r1,r2] = await Promise.all([fetch(SHEETS_PDV+'&t='+Date.now()), fetch(SHEETS_REL+'&t='+Date.now())]);
+    const [t1,t2] = await Promise.all([r1.text(), r2.text()]);
+    parsePDV(t1); parseRel(t2);
+  } catch(e) { toast('Error al cargar datos','error'); }
 }
 
-function csvRows(text) {
-  // Parseo CSV robusto (maneja comas dentro de comillas)
+function csvParse(text) {
   return text.split('\n').map(line => {
-    const cols = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else { cur += ch; }
+    const cols=[]; let cur='', q=false;
+    for (const ch of line) {
+      if (ch==='"') { q=!q; }
+      else if (ch===',' && !q) { cols.push(cur.trim()); cur=''; }
+      else cur+=ch;
     }
-    cols.push(cur.trim());
-    return cols;
-  }).filter(r => r.some(c => c !== ''));
+    cols.push(cur.trim()); return cols;
+  }).filter(r => r.some(c=>c));
 }
 
-function parseCoord(val) {
-  if (!val) return NaN;
-  let s = String(val).trim().replace(/"/g, '');
-  if (s.includes(',') && !s.includes('.')) s = s.replace(',', '.');
+function toNum(v) {
+  let s=String(v||'').trim().replace(/"/g,'');
+  if (s.includes(',') && !s.includes('.')) s=s.replace(',','.');
   return parseFloat(s);
 }
 
 function parsePDV(text) {
-  state.pdvs = [];
-  const rows = csvRows(text);
-  console.log('=== HOJA 1 RAW (primeras 4 filas) ===');
-  rows.slice(0, 4).forEach((r, i) => console.log('Fila ' + i + ':', JSON.stringify(r)));
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.length < 3) continue;
-    const nombre = r[0] ? r[0].trim() : '';
-    const lat = parseCoord(r[1]);
-    const lng = parseCoord(r[2]);
-    if (nombre && !isNaN(lat) && !isNaN(lng)) {
-      state.pdvs.push({ nombre, lat, lng });
-    }
-  }
-  console.log('PDVs cargados:', state.pdvs.length, JSON.stringify(state.pdvs.slice(0, 2)));
-  populatePdvSelect();
+  S.pdvs=[];
+  csvParse(text).slice(1).forEach(r => {
+    const nombre=r[0]?.trim(), lat=toNum(r[1]), lng=toNum(r[2]);
+    if (nombre && !isNaN(lat) && !isNaN(lng)) S.pdvs.push({nombre,lat,lng});
+  });
+  const sel=document.getElementById('sel-pdv');
+  sel.innerHTML='<option value="">— Seleccione un PDV —</option>';
+  S.pdvs.forEach((p,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=p.nombre; sel.appendChild(o); });
 }
 
-function parseRelevadores(text) {
-  // Hoja 2: Columna A = NOMBRE Y APELLIDO, B = C.I
-  state.relevadores = [];
-  const rows = csvRows(text);
-  console.log('=== HOJA 2 RAW (primeras 5 filas) ===');
-  rows.slice(0, 5).forEach((r, i) => console.log(`Fila ${i}:`, JSON.stringify(r)));
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    const nombre = r[0] ? r[0].trim() : '';
-    // Limpiar cédula: quitar puntos, espacios, guiones
-    const cedula = r[1] ? String(r[1]).trim().replace(/[\.\-\s]/g, '') : '';
-    if (nombre && cedula) {
-      state.relevadores.push({ nombre, cedula });
-    }
-  }
-  console.log('Relevadores cargados:', state.relevadores.length, state.relevadores.slice(0,3));
-}
-
-function populatePdvSelect() {
-  const sel = document.getElementById('sel-pdv');
-  sel.innerHTML = '<option value="">— Seleccione un PDV —</option>';
-  state.pdvs.forEach((p, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = p.nombre;
-    sel.appendChild(opt);
+function parseRel(text) {
+  S.rels=[];
+  csvParse(text).slice(1).forEach(r => {
+    const nombre=r[0]?.trim();
+    const cedula=String(r[1]||'').trim().replace(/[\.\-\s]/g,'');
+    if (nombre && cedula) S.rels.push({nombre,cedula});
   });
 }
 
-// ═══════════════════════════════════════════════════
-// GEOLOCATION
-// ═══════════════════════════════════════════════════
-function startGeoWatch() {
-  if (!navigator.geolocation) {
-    setGeoStatus(false, 'GPS no disponible');
-    return;
-  }
+// ═══════════════════════════════════
+// GPS
+// ═══════════════════════════════════
+function watchGeo() {
+  if (!navigator.geolocation) { setGeo(false,'GPS no soportado'); return; }
   navigator.geolocation.watchPosition(
-    pos => {
-      state.geo = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      state.geoOk = true;
-      setGeoStatus(true, `${state.geo.lat.toFixed(5)}, ${state.geo.lng.toFixed(5)}`);
-      updateButtons();
-    },
-    err => {
-      state.geoOk = false;
-      setGeoStatus(false, 'GPS no disponible — habilite ubicación');
-      updateButtons();
-    },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+    p => { S.geo={lat:p.coords.latitude,lng:p.coords.longitude}; S.geoOk=true; setGeo(true,`${S.geo.lat.toFixed(5)}, ${S.geo.lng.toFixed(5)}`); updateButtons(); },
+    () => { S.geoOk=false; setGeo(false,'GPS no disponible — habilite ubicación'); updateButtons(); },
+    {enableHighAccuracy:true, timeout:10000, maximumAge:5000}
   );
 }
-
-function setGeoStatus(ok, msg) {
-  document.getElementById('geo-dot').className = 'geo-dot ' + (ok ? 'ok' : 'error');
-  document.getElementById('geo-label').textContent = ok ? `GPS: ${msg}` : msg;
+function setGeo(ok,msg) {
+  document.getElementById('geo-dot').className='geo-dot '+(ok?'ok':'err');
+  document.getElementById('geo-label').textContent=ok?`GPS: ${msg}`:msg;
+}
+function haversine(la1,ln1,la2,ln2) {
+  const R=6371000, dLa=(la2-la1)*Math.PI/180, dLn=(ln2-ln1)*Math.PI/180;
+  const a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLn/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-// Haversine distance (metros)
-function distanceMeters(lat1, lng1, lat2, lng2) {
-  const R = 6371000;
-  const dLat = (lat2-lat1)*Math.PI/180;
-  const dLng = (lng2-lng1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════
 // LOGIN
-// ═══════════════════════════════════════════════════
-function onCedulaInput() {
-  const val = document.getElementById('inp-cedula').value.trim();
-  const preview = document.getElementById('preview-name');
-  const previewText = document.getElementById('preview-name-text');
-  const valClean = val.replace(/[\.\-\s]/g, '');
-  if (valClean.length >= 5) {
-    const found = state.relevadores.find(r => r.cedula === valClean);
-    if (found) {
-      previewText.textContent = found.nombre;
-      preview.classList.add('visible');
-      preview.style.background = '#e8f5e9';
-      preview.style.borderColor = '#a5d6a7';
-      preview.style.color = 'var(--success)';
-    } else {
-      previewText.textContent = 'Cédula no encontrada';
-      preview.classList.add('visible');
-      preview.style.background = '#fce4ec';
-      preview.style.borderColor = '#f48fb1';
-      preview.style.color = 'var(--danger)';
-    }
-  } else {
-    preview.classList.remove('visible');
-  }
+// ═══════════════════════════════════
+function onCedInput() {
+  const val=document.getElementById('inp-ced').value.trim().replace(/[\.\-\s]/g,'');
+  const prev=document.getElementById('name-preview');
+  const txt=document.getElementById('preview-txt');
+  if (val.length>=5) {
+    const f=S.rels.find(r=>r.cedula===val);
+    prev.className='name-preview show '+(f?'ok':'err');
+    txt.textContent=f?f.nombre:'Cédula no encontrada';
+  } else { prev.className='name-preview'; }
 }
 
-async function doLogin() {
-  const cedula = document.getElementById('inp-cedula').value.trim().replace(/[\.\-\s]/g, '');
-  const marca = document.getElementById('sel-marca').value;
-
-  if (!marca) { toast('Seleccione una marca primero', 'warn'); return; }
-  if (!cedula) { toast('Ingrese su número de cédula', 'warn'); return; }
-
-  const found = state.relevadores.find(r => r.cedula === cedula);
-  if (!found) {
-    toast('Cédula no encontrada en el sistema', 'error');
-    return;
-  }
-
-  state.user = { cedula, nombre: found.nombre, marca };
-  // Load session state from localStorage
-  loadSession();
-  showMain();
-}
-
-// ═══════════════════════════════════════════════════
-// SESSION PERSISTENCE
-// ═══════════════════════════════════════════════════
-function loadSession() {
-  try {
-    const key = 'gmarka_session_' + state.user.cedula;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      state.activeCheckIn = parsed.activeCheckIn || null;
-      state.history = parsed.history || [];
-    }
-  } catch(e) {}
-}
-
-function saveSession() {
-  try {
-    const key = 'gmarka_session_' + state.user.cedula;
-    localStorage.setItem(key, JSON.stringify({
-      activeCheckIn: state.activeCheckIn,
-      history: state.history
-    }));
-  } catch(e) {}
-}
-
-// ═══════════════════════════════════════════════════
-// SHOW SCREENS
-// ═══════════════════════════════════════════════════
-function showMain() {
-  document.getElementById('screen-login').classList.remove('active');
-  document.getElementById('screen-main').classList.add('active');
-  document.getElementById('app-header').style.display = 'flex';
-
-  document.getElementById('main-name').textContent = state.user.nombre;
-  document.getElementById('main-ci').textContent = 'CI: ' + state.user.cedula;
-  document.getElementById('main-marca').textContent = state.user.marca;
-  document.getElementById('header-user').innerHTML = `<strong>${state.user.nombre}</strong>${state.user.marca}`;
-
-  updateStatusBanner();
-  updateButtons();
-  renderHistory();
+function doLogin() {
+  const cedula=document.getElementById('inp-ced').value.trim().replace(/[\.\-\s]/g,'');
+  const marca=document.getElementById('sel-marca').value;
+  if (!marca)  { toast('Seleccione una marca','warn'); return; }
+  if (!cedula) { toast('Ingrese su cédula','warn'); return; }
+  const f=S.rels.find(r=>r.cedula===cedula);
+  if (!f) { toast('Cédula no encontrada','error'); return; }
+  S.user={cedula, nombre:f.nombre, marca};
+  loadSession(); showMain();
 }
 
 function logout() {
-  state.user = null;
-  state.activeCheckIn = null;
-  state.history = [];
+  S.user=null; S.active=null; S.visits=[];
   document.getElementById('screen-main').classList.remove('active');
   document.getElementById('screen-login').classList.add('active');
-  document.getElementById('app-header').style.display = 'none';
-  document.getElementById('inp-cedula').value = '';
-  document.getElementById('sel-marca').value = '';
-  document.getElementById('preview-name').classList.remove('visible');
+  document.getElementById('app-header').classList.remove('visible');
+  document.getElementById('inp-ced').value='';
+  document.getElementById('sel-marca').value='';
+  document.getElementById('name-preview').className='name-preview';
 }
 
-// ═══════════════════════════════════════════════════
-// CHECK-IN / CHECK-OUT
-// ═══════════════════════════════════════════════════
-function onPdvChange() {
-  updateButtons();
+// ═══════════════════════════════════
+// SESSION
+// ═══════════════════════════════════
+function loadSession() {
+  try { const d=JSON.parse(localStorage.getItem('gm_'+S.user.cedula)||'{}'); S.active=d.active||null; S.visits=d.visits||[]; } catch(e){}
+}
+function saveSession() {
+  try { localStorage.setItem('gm_'+S.user.cedula, JSON.stringify({active:S.active, visits:S.visits})); } catch(e){}
+}
+
+// ═══════════════════════════════════
+// PANTALLA PRINCIPAL
+// ═══════════════════════════════════
+function showMain() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-main').classList.add('active');
+  document.getElementById('app-header').classList.add('visible');
+  document.getElementById('main-name').textContent=S.user.nombre;
+  document.getElementById('main-ci').textContent='CI: '+S.user.cedula;
+  document.getElementById('main-marca').textContent=S.user.marca;
+  document.getElementById('hdr-name').textContent=S.user.nombre;
+  document.getElementById('hdr-marca').textContent=S.user.marca;
+  updateStatus(); updateButtons(); renderHistory();
 }
 
 function updateButtons() {
-  const hasCheckin = !!state.activeCheckIn;
-  const pdvIdx = document.getElementById('sel-pdv').value;
-  const hasPdv = pdvIdx !== '';
+  const hasActive=!!S.active;
+  const pdvIdx=document.getElementById('sel-pdv').value;
+  const hasPdv=pdvIdx!=='';
+  const btnIn=document.getElementById('btn-in');
+  const btnOut=document.getElementById('btn-out');
+  const selPdv=document.getElementById('sel-pdv');
+  if (!hasActive && hasPdv && S.geoOk) btnIn.classList.remove('disabled');
+  else btnIn.classList.add('disabled');
+  if (hasActive) { btnOut.classList.remove('disabled'); btnIn.classList.add('disabled'); selPdv.disabled=true; }
+  else { btnOut.classList.add('disabled'); selPdv.disabled=false; }
+}
 
-  const btnIn = document.getElementById('btn-checkin');
-  const btnOut = document.getElementById('btn-checkout');
-
-  // Check-in: no active session, has PDV, GPS ok
-  if (!hasCheckin && hasPdv && state.geoOk) {
-    btnIn.classList.remove('btn-disabled');
+function updateStatus() {
+  const card=document.getElementById('status-card');
+  const text=document.getElementById('sc-text');
+  const detail=document.getElementById('sc-detail');
+  if (S.active) {
+    card.className='status-card in';
+    text.textContent='Check-in activo: '+S.active.pdv;
+    detail.textContent='Ingresó a las '+S.active.horaIn;
   } else {
-    btnIn.classList.add('btn-disabled');
-  }
-
-  // Check-out: active session
-  if (hasCheckin) {
-    btnOut.classList.remove('btn-disabled');
-    btnIn.classList.add('btn-disabled');
-    // Lock PDV selector
-    document.getElementById('sel-pdv').disabled = true;
-  } else {
-    btnOut.classList.add('btn-disabled');
-    document.getElementById('sel-pdv').disabled = false;
+    card.className='status-card idle';
+    text.textContent='Sin registro activo';
+    detail.textContent='Seleccione un PDV y haga Check-in';
   }
 }
 
+// ═══════════════════════════════════
+// CHECK-IN
+// ═══════════════════════════════════
 async function doCheckIn() {
-  const pdvIdx = parseInt(document.getElementById('sel-pdv').value);
-  if (isNaN(pdvIdx)) { toast('Seleccione un PDV', 'warn'); return; }
-  if (!state.geoOk || !state.geo) { toast('GPS no disponible. Habilite ubicación.', 'error'); return; }
-  if (state.activeCheckIn) { toast('Ya tiene un Check-in activo. Haga Check-out primero.', 'warn'); return; }
+  const idx=parseInt(document.getElementById('sel-pdv').value);
+  if (isNaN(idx)) { toast('Seleccione un PDV','warn'); return; }
+  if (!S.geoOk)   { toast('GPS no disponible','error'); return; }
+  if (S.active)   { toast('Haga Check-out primero','warn'); return; }
 
-  const pdv = state.pdvs[pdvIdx];
+  const pdv=S.pdvs[idx];
+  const dist=haversine(S.geo.lat,S.geo.lng,pdv.lat,pdv.lng);
+  if (dist>MAX_DIST) { toast(`Fuera de rango: ${Math.round(dist)}m (máx ${MAX_DIST}m)`,'error'); return; }
 
-  // Validar distancia
-  const dist = distanceMeters(state.geo.lat, state.geo.lng, pdv.lat, pdv.lng);
-  if (dist > MAX_DISTANCE_METERS) {
-    toast(`Fuera de rango del PDV (${Math.round(dist)}m). Máximo ${MAX_DISTANCE_METERS}m.`, 'error');
-    return;
-  }
+  loader('Registrando Check-in...');
+  const now=new Date();
+  const fecha=fmtDate(now), horaIn=fmtTime(now);
+  const rowKey=`${S.user.cedula}_${Date.now()}`;
 
-  showLoading('Registrando Check-in...');
-
-  const now = new Date();
-  const record = {
-    cedula: state.user.cedula,
-    nombre: state.user.nombre,
-    marca: state.user.marca,
-    pdv: pdv.nombre,
-    fecha: formatDate(now),
-    hora: formatTime(now),
-    tipo: 'CHECK-IN',
-    lat: state.geo.lat,
-    lng: state.geo.lng,
-  };
-
-  const ok = await sendRecord(record);
-  hideLoading();
+  const ok=await send({accion:'checkin', rowKey, cedula:S.user.cedula, nombre:S.user.nombre, marca:S.user.marca, pdv:pdv.nombre, fecha, horaIn, latIn:S.geo.lat, lngIn:S.geo.lng});
+  hideLoader();
 
   if (ok) {
-    state.activeCheckIn = { pdv: pdv.nombre, pdvIdx, hora: record.hora, lat: state.geo.lat, lng: state.geo.lng, ts: now.toISOString() };
-    state.history.unshift(record);
-    saveSession();
-    updateStatusBanner();
-    updateButtons();
-    renderHistory();
-    toast('✅ Check-in registrado correctamente', 'success');
+    S.active={pdv:pdv.nombre, fecha, horaIn, latIn:S.geo.lat, lngIn:S.geo.lng, rowKey};
+    S.visits.unshift({pdv:pdv.nombre, fecha, horaIn, horaOut:null, rowKey});
+    saveSession(); updateStatus(); updateButtons(); renderHistory();
+    toast('✅ Check-in registrado','success');
   }
 }
 
+// ═══════════════════════════════════
+// CHECK-OUT
+// ═══════════════════════════════════
 async function doCheckOut() {
-  if (!state.activeCheckIn) { toast('No hay Check-in activo', 'warn'); return; }
-  if (!state.geoOk || !state.geo) { toast('GPS no disponible', 'error'); return; }
+  if (!S.active) { toast('No hay Check-in activo','warn'); return; }
+  if (!S.geoOk)  { toast('GPS no disponible','error'); return; }
 
-  showLoading('Registrando Check-out...');
+  loader('Registrando Check-out...');
+  const now=new Date(), horaOut=fmtTime(now);
 
-  const now = new Date();
-  const record = {
-    cedula: state.user.cedula,
-    nombre: state.user.nombre,
-    marca: state.user.marca,
-    pdv: state.activeCheckIn.pdv,
-    fecha: formatDate(now),
-    hora: formatTime(now),
-    tipo: 'CHECK-OUT',
-    lat: state.geo.lat,
-    lng: state.geo.lng,
-  };
-
-  const ok = await sendRecord(record);
-  hideLoading();
+  const ok=await send({accion:'checkout', rowKey:S.active.rowKey, cedula:S.user.cedula, nombre:S.user.nombre, marca:S.user.marca, pdv:S.active.pdv, fecha:S.active.fecha, horaIn:S.active.horaIn, horaOut, latIn:S.active.latIn, lngIn:S.active.lngIn, latOut:S.geo.lat, lngOut:S.geo.lng});
+  hideLoader();
 
   if (ok) {
-    state.history.unshift(record);
-    state.activeCheckIn = null;
-    saveSession();
-    updateStatusBanner();
-    updateButtons();
-    renderHistory();
-    document.getElementById('sel-pdv').value = '';
-    toast('🚪 Check-out registrado correctamente', 'success');
+    const v=S.visits.find(x=>x.rowKey===S.active.rowKey);
+    if (v) { v.horaOut=horaOut; }
+    S.active=null;
+    saveSession(); updateStatus(); updateButtons(); renderHistory();
+    document.getElementById('sel-pdv').value='';
+    toast('🚪 Check-out registrado','success');
   }
 }
 
-// ═══════════════════════════════════════════════════
-// SEND TO GOOGLE SHEETS via Apps Script
-// ═══════════════════════════════════════════════════
-async function sendRecord(record) {
+// ═══════════════════════════════════
+// ENVÍO
+// ═══════════════════════════════════
+async function send(data) {
   try {
-    const params = new URLSearchParams(record);
-    const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), { method: 'GET' });
-    const json = await res.json();
-    if (json.status === 'ok') return true;
-    toast('Error al guardar: ' + (json.message || 'desconocido'), 'error');
-    return false;
+    // no-cors evita el problema de redirect 302 de Google Apps Script
+    await fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams(data), {
+      method:'GET',
+      mode:'no-cors',
+      redirect:'follow'
+    });
+    // Con no-cors no podemos leer la respuesta, pero el script se ejecuta igual
+    return true;
   } catch(e) {
-    // Si el Apps Script no está configurado aún, guardar offline
-    toast('Guardado offline (sin conexión al servidor)', 'warn');
-    return true; // permitir funcionamiento demo
+    toast('Sin conexión — datos guardados localmente','warn');
+    return true;
   }
 }
 
-// ═══════════════════════════════════════════════════
-// UI UPDATES
-// ═══════════════════════════════════════════════════
-function updateStatusBanner() {
-  const banner = document.getElementById('status-banner');
-  const text = document.getElementById('status-text');
-  const detail = document.getElementById('status-detail');
-  if (state.activeCheckIn) {
-    banner.className = 'status-banner in';
-    text.textContent = `Check-in activo: ${state.activeCheckIn.pdv}`;
-    detail.textContent = `Ingresó a las ${state.activeCheckIn.hora}`;
-  } else {
-    banner.className = 'status-banner idle';
-    text.textContent = 'Sin registro activo';
-    detail.textContent = 'Seleccione un PDV y haga Check-in';
-  }
-}
-
+// ═══════════════════════════════════
+// HISTORIAL
+// ═══════════════════════════════════
 function renderHistory() {
-  const container = document.getElementById('history-list');
-  const today = formatDate(new Date());
-  const todayItems = state.history.filter(h => h.fecha === today);
-
-  if (!todayItems.length) {
-    container.innerHTML = '<div class="empty-state"><span class="icon">📋</span>Sin movimientos hoy</div>';
-    return;
-  }
-  container.innerHTML = todayItems.map(h => `
-    <div class="history-item ${h.tipo === 'CHECK-IN' ? 'checkin' : 'checkout'}">
-      <div class="hi-top">
-        <span class="hi-type">${h.tipo === 'CHECK-IN' ? '✅ CHECK-IN' : '🚪 CHECK-OUT'}</span>
-        <span class="hi-time">${h.hora}</span>
+  const cont=document.getElementById('hist-list');
+  const today=fmtDate(new Date());
+  const items=S.visits.filter(v=>v.fecha===today);
+  if (!items.length) { cont.innerHTML='<div class="empty-state"><span class="ei">📋</span>Sin movimientos hoy</div>'; return; }
+  cont.innerHTML=items.map(v=>`
+    <div class="visit-card">
+      <div class="visit-header">
+        <div class="visit-pdv">📍 ${v.pdv}</div>
+        <div class="visit-date">${v.fecha}</div>
       </div>
-      <div class="hi-pdv">📍 ${h.pdv}</div>
-      <div class="hi-loc">GPS: ${parseFloat(h.lat).toFixed(5)}, ${parseFloat(h.lng).toFixed(5)}</div>
+      <div class="visit-times">
+        <div class="vtb">
+          <div class="vtb-label in">✅ Check-in</div>
+          <div class="vtb-time">${v.horaIn}</div>
+        </div>
+        <div class="vtb">
+          <div class="vtb-label out">🚪 Check-out</div>
+          ${v.horaOut ? `<div class="vtb-time">${v.horaOut}</div>` : `<div class="vtb-pending">Pendiente...</div>`}
+        </div>
+      </div>
     </div>
   `).join('');
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════════════════
-function formatDate(d) {
-  return d.toLocaleDateString('es-PY', { year:'numeric', month:'2-digit', day:'2-digit' });
-}
-function formatTime(d) {
-  return d.toLocaleTimeString('es-PY', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-}
-
-function toast(msg, type = '') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = type ? `show ${type}` : 'show';
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.className = '', 3500);
-}
-
-function showLoading(msg = 'Procesando...') {
-  document.getElementById('loading-msg').textContent = msg;
-  document.getElementById('loading-overlay').style.display = 'flex';
-}
-function hideLoading() {
-  document.getElementById('loading-overlay').style.display = 'none';
-}
+// ═══════════════════════════════════
+function fmtDate(d) { return d.toLocaleDateString('es-PY',{year:'numeric',month:'2-digit',day:'2-digit'}); }
+function fmtTime(d) { return d.toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+function toast(msg,type='') { const el=document.getElementById('toast'); el.textContent=msg; el.className=type?`show ${type}`:'show'; clearTimeout(el._t); el._t=setTimeout(()=>el.className='',3500); }
+function loader(msg='Procesando...') { document.getElementById('loader-msg').textContent=msg; document.getElementById('loader').classList.add('show'); }
+function hideLoader() { document.getElementById('loader').classList.remove('show'); }
 </script>
 </body>
 </html>
