@@ -22,7 +22,7 @@
   --radius: 16px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
+ 
 body {
   font-family: 'Barlow', sans-serif;
   background: var(--bg);
@@ -33,7 +33,7 @@ body {
   display: flex;
   flex-direction: column;
 }
-
+ 
 /* HEADER */
 .app-header {
   background: var(--primary);
@@ -49,11 +49,11 @@ body {
 .logo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:20px; color:#fff; letter-spacing:1px; }
 .logo span { color: var(--accent); }
 .btn-logout { background:none; border:1.5px solid #444; color:#bbb; border-radius:8px; padding:6px 12px; font-size:13px; font-family:'Barlow',sans-serif; cursor:pointer; }
-
+ 
 /* SCREENS */
 .screen { display:none; flex-direction:column; flex:1; }
 .screen.active { display:flex; }
-
+ 
 /* LOGIN */
 #screen-login { justify-content:center; align-items:center; padding:24px 20px; min-height:100dvh; background:var(--bg); }
 .login-box { background:var(--card); border-radius:24px; padding:36px 24px 32px; width:100%; display:flex; flex-direction:column; gap:18px; box-shadow:0 4px 24px rgba(0,0,0,0.10); }
@@ -62,54 +62,54 @@ body {
 .login-logo .wordmark span { color:var(--accent); }
 .login-logo .sub { font-size:12px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
 .divider { width:40px; height:3px; background:var(--accent); border-radius:2px; margin:0 auto; }
-
+ 
 label { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px; }
 select, input[type="text"] { width:100%; padding:15px 14px; border:2px solid var(--border); border-radius:12px; font-size:16px; font-family:'Barlow',sans-serif; color:var(--text); background:#fafafa; outline:none; appearance:none; transition:border-color .2s; }
 select:focus, input:focus { border-color:var(--accent); background:#fff; }
-
+ 
 .name-preview { border-radius:12px; padding:13px 16px; display:none; align-items:center; gap:10px; font-size:15px; font-weight:600; }
 .name-preview.show { display:flex; }
 .name-preview.ok  { background:var(--success-bg); border:1.5px solid #a8d5b5; color:var(--success); }
 .name-preview.err { background:var(--danger-bg);  border:1.5px solid #f5b7b1; color:var(--danger); }
-
+ 
 .btn-login { background:var(--primary); color:#fff; border:none; border-radius:14px; padding:18px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:18px; letter-spacing:1px; cursor:pointer; transition:background .2s; }
 .btn-login:active { background:#333; }
 .login-note { font-size:11px; color:var(--muted); text-align:center; }
-
+ 
 /* MAIN */
 #screen-main { padding:0 0 28px; background:var(--bg); }
-
+ 
 .user-card { background:var(--primary); padding:20px 18px 18px; color:#fff; }
 .user-card .uc-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
 .user-card .uc-name  { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:28px; line-height:1.1; }
 .user-card .uc-ci    { font-size:13px; color:#aaa; margin-top:2px; }
 .marca-badge { display:inline-block; margin-top:10px; background:var(--accent); color:var(--primary); font-weight:700; font-size:12px; padding:4px 12px; border-radius:20px; letter-spacing:.5px; }
-
+ 
 .main-body { padding:16px 16px 0; display:flex; flex-direction:column; gap:14px; }
-
+ 
 .pdv-wrap { display:flex; flex-direction:column; gap:5px; }
-
+ 
 .geo-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
 .geo-dot { width:9px; height:9px; border-radius:50%; background:#ccc; flex-shrink:0; transition:background .3s; }
 .geo-dot.ok  { background:var(--success); }
 .geo-dot.err { background:var(--danger); }
-
+ 
 .status-card { border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; font-size:15px; font-weight:600; border:1.5px solid transparent; }
 .status-card.idle { background:#f5f5f5; border-color:#e0e0e0; color:var(--muted); }
 .status-card.in   { background:var(--success-bg); border-color:#a8d5b5; color:var(--success); }
 .sc-icon { font-size:26px; flex-shrink:0; }
 .sc-detail { font-size:12px; font-weight:400; margin-top:2px; opacity:.8; }
-
+ 
 .btn-row { display:flex; gap:10px; }
 .btn-action { flex:1; padding:18px 10px; border:none; border-radius:14px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:19px; letter-spacing:.5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s; }
 .btn-action:active { transform:scale(0.96); }
 .btn-in  { background:var(--success); color:#fff; }
 .btn-out { background:var(--danger);  color:#fff; }
 .btn-action.disabled { background:#ddd !important; color:#aaa !important; cursor:not-allowed; pointer-events:none; }
-
+ 
 .hist-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
 .hist-list { display:flex; flex-direction:column; gap:10px; }
-
+ 
 /* Tarjeta de visita — check-in y checkout en una sola fila */
 .visit-card { background:var(--card); border-radius:14px; box-shadow:0 1px 6px rgba(0,0,0,0.07); overflow:hidden; }
 .visit-header { padding:12px 14px 10px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; justify-content:space-between; }
@@ -123,17 +123,17 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 .vtb-label.out { color:var(--danger); }
 .vtb-time    { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--text); }
 .vtb-pending { font-size:13px; color:#ccc; font-style:italic; margin-top:4px; }
-
+ 
 .empty-state { text-align:center; color:var(--muted); padding:28px 0; }
 .empty-state .ei { font-size:32px; display:block; margin-bottom:6px; }
-
+ 
 /* TOAST */
 #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--primary); color:#fff; padding:13px 22px; border-radius:50px; font-size:14px; font-weight:600; z-index:9999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; max-width:92vw; text-align:center; pointer-events:none; }
 #toast.show    { transform:translateX(-50%) translateY(0); }
 #toast.success { background:var(--success); }
 #toast.error   { background:var(--danger); }
 #toast.warn    { background:var(--warn); }
-
+ 
 /* LOADER */
 #loader { position:fixed; inset:0; background:rgba(255,255,255,.88); display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:9998; }
 #loader.show { display:flex; }
@@ -143,7 +143,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 </style>
 </head>
 <body>
-
+ 
 <header class="app-header" id="app-header">
   <div class="logo"><span>G+</span>MARKA</div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -154,10 +154,10 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
     <button class="btn-logout" onclick="logout()">Salir</button>
   </div>
 </header>
-
+ 
 <div id="loader"><div class="spin"></div><div class="loader-msg" id="loader-msg">Cargando...</div></div>
 <div id="toast"></div>
-
+ 
 <!-- LOGIN -->
 <div class="screen active" id="screen-login">
   <div class="login-box">
@@ -189,7 +189,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
     <p class="login-note">Sin contraseña. Solo su número de cédula.</p>
   </div>
 </div>
-
+ 
 <!-- MAIN -->
 <div class="screen" id="screen-main">
   <div class="user-card">
@@ -198,7 +198,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
     <div class="uc-ci"   id="main-ci">CI: —</div>
     <div class="marca-badge" id="main-marca">—</div>
   </div>
-
+ 
   <div class="main-body">
     <div class="pdv-wrap">
       <label>Punto de Venta (PDV)</label>
@@ -206,12 +206,12 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
         <option value="">— Seleccione un PDV —</option>
       </select>
     </div>
-
+ 
     <div class="geo-row">
       <div class="geo-dot" id="geo-dot"></div>
       <span id="geo-label">Obteniendo ubicación GPS...</span>
     </div>
-
+ 
     <div class="status-card idle" id="status-card">
       <span class="sc-icon">📍</span>
       <div>
@@ -219,19 +219,19 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
         <div class="sc-detail" id="sc-detail">Seleccione un PDV y haga Check-in</div>
       </div>
     </div>
-
+ 
     <div class="btn-row">
       <button class="btn-action btn-in  disabled" id="btn-in"  onclick="doCheckIn()">✅ CHECK-IN</button>
       <button class="btn-action btn-out disabled" id="btn-out" onclick="doCheckOut()">🚪 CHECK-OUT</button>
     </div>
-
+ 
     <div class="hist-title">Historial de hoy</div>
     <div class="hist-list" id="hist-list">
       <div class="empty-state"><span class="ei">📋</span>Sin movimientos hoy</div>
     </div>
   </div>
 </div>
-
+ 
 <script>
 // ═══════════════════════════════════
 // CONFIG
@@ -240,12 +240,12 @@ const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyI
 const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=1995845338&single=true&output=csv';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec'; // ← reemplace con su URL
 const MAX_DIST = 500;
-
+ 
 // ═══════════════════════════════════
 // ESTADO
 // ═══════════════════════════════════
 let S = { user:null, pdvs:[], rels:[], geo:null, geoOk:false, active:null, visits:[] };
-
+ 
 // ═══════════════════════════════════
 // INIT
 // ═══════════════════════════════════
@@ -255,7 +255,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   watchGeo();
   hideLoader();
 });
-
+ 
 // ═══════════════════════════════════
 // DATOS
 // ═══════════════════════════════════
@@ -266,7 +266,7 @@ async function loadData() {
     parsePDV(t1); parseRel(t2);
   } catch(e) { toast('Error al cargar datos','error'); }
 }
-
+ 
 function csvParse(text) {
   return text.split('\n').map(line => {
     const cols=[]; let cur='', q=false;
@@ -278,13 +278,13 @@ function csvParse(text) {
     cols.push(cur.trim()); return cols;
   }).filter(r => r.some(c=>c));
 }
-
+ 
 function toNum(v) {
   let s=String(v||'').trim().replace(/"/g,'');
   if (s.includes(',') && !s.includes('.')) s=s.replace(',','.');
   return parseFloat(s);
 }
-
+ 
 function parsePDV(text) {
   S.pdvs=[];
   csvParse(text).slice(1).forEach(r => {
@@ -295,7 +295,7 @@ function parsePDV(text) {
   sel.innerHTML='<option value="">— Seleccione un PDV —</option>';
   S.pdvs.forEach((p,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=p.nombre; sel.appendChild(o); });
 }
-
+ 
 function parseRel(text) {
   S.rels=[];
   csvParse(text).slice(1).forEach(r => {
@@ -304,7 +304,7 @@ function parseRel(text) {
     if (nombre && cedula) S.rels.push({nombre,cedula});
   });
 }
-
+ 
 // ═══════════════════════════════════
 // GPS
 // ═══════════════════════════════════
@@ -325,7 +325,7 @@ function haversine(la1,ln1,la2,ln2) {
   const a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLn/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-
+ 
 // ═══════════════════════════════════
 // LOGIN
 // ═══════════════════════════════════
@@ -339,7 +339,7 @@ function onCedInput() {
     txt.textContent=f?f.nombre:'Cédula no encontrada';
   } else { prev.className='name-preview'; }
 }
-
+ 
 function doLogin() {
   const cedula=document.getElementById('inp-ced').value.trim().replace(/[\.\-\s]/g,'');
   const marca=document.getElementById('sel-marca').value;
@@ -350,7 +350,7 @@ function doLogin() {
   S.user={cedula, nombre:f.nombre, marca};
   loadSession(); showMain();
 }
-
+ 
 function logout() {
   S.user=null; S.active=null; S.visits=[];
   document.getElementById('screen-main').classList.remove('active');
@@ -360,7 +360,7 @@ function logout() {
   document.getElementById('sel-marca').value='';
   document.getElementById('name-preview').className='name-preview';
 }
-
+ 
 // ═══════════════════════════════════
 // SESSION
 // ═══════════════════════════════════
@@ -370,7 +370,7 @@ function loadSession() {
 function saveSession() {
   try { localStorage.setItem('gm_'+S.user.cedula, JSON.stringify({active:S.active, visits:S.visits})); } catch(e){}
 }
-
+ 
 // ═══════════════════════════════════
 // PANTALLA PRINCIPAL
 // ═══════════════════════════════════
@@ -385,7 +385,7 @@ function showMain() {
   document.getElementById('hdr-marca').textContent=S.user.marca;
   updateStatus(); updateButtons(); renderHistory();
 }
-
+ 
 function updateButtons() {
   const hasActive=!!S.active;
   const pdvIdx=document.getElementById('sel-pdv').value;
@@ -398,7 +398,7 @@ function updateButtons() {
   if (hasActive) { btnOut.classList.remove('disabled'); btnIn.classList.add('disabled'); selPdv.disabled=true; }
   else { btnOut.classList.add('disabled'); selPdv.disabled=false; }
 }
-
+ 
 function updateStatus() {
   const card=document.getElementById('status-card');
   const text=document.getElementById('sc-text');
@@ -413,7 +413,7 @@ function updateStatus() {
     detail.textContent='Seleccione un PDV y haga Check-in';
   }
 }
-
+ 
 // ═══════════════════════════════════
 // CHECK-IN
 // ═══════════════════════════════════
@@ -422,19 +422,19 @@ async function doCheckIn() {
   if (isNaN(idx)) { toast('Seleccione un PDV','warn'); return; }
   if (!S.geoOk)   { toast('GPS no disponible','error'); return; }
   if (S.active)   { toast('Haga Check-out primero','warn'); return; }
-
+ 
   const pdv=S.pdvs[idx];
   const dist=haversine(S.geo.lat,S.geo.lng,pdv.lat,pdv.lng);
   if (dist>MAX_DIST) { toast(`Fuera de rango: ${Math.round(dist)}m (máx ${MAX_DIST}m)`,'error'); return; }
-
+ 
   loader('Registrando Check-in...');
   const now=new Date();
   const fecha=fmtDate(now), horaIn=fmtTime(now);
   const rowKey=`${S.user.cedula}_${Date.now()}`;
-
+ 
   const ok=await send({accion:'checkin', rowKey, cedula:S.user.cedula, nombre:S.user.nombre, marca:S.user.marca, pdv:pdv.nombre, fecha, horaIn, latIn:S.geo.lat, lngIn:S.geo.lng});
   hideLoader();
-
+ 
   if (ok) {
     S.active={pdv:pdv.nombre, fecha, horaIn, latIn:S.geo.lat, lngIn:S.geo.lng, rowKey};
     S.visits.unshift({pdv:pdv.nombre, fecha, horaIn, horaOut:null, rowKey});
@@ -442,20 +442,20 @@ async function doCheckIn() {
     toast('✅ Check-in registrado','success');
   }
 }
-
+ 
 // ═══════════════════════════════════
 // CHECK-OUT
 // ═══════════════════════════════════
 async function doCheckOut() {
   if (!S.active) { toast('No hay Check-in activo','warn'); return; }
   if (!S.geoOk)  { toast('GPS no disponible','error'); return; }
-
+ 
   loader('Registrando Check-out...');
   const now=new Date(), horaOut=fmtTime(now);
-
+ 
   const ok=await send({accion:'checkout', rowKey:S.active.rowKey, cedula:S.user.cedula, nombre:S.user.nombre, marca:S.user.marca, pdv:S.active.pdv, fecha:S.active.fecha, horaIn:S.active.horaIn, horaOut, latIn:S.active.latIn, lngIn:S.active.lngIn, latOut:S.geo.lat, lngOut:S.geo.lng});
   hideLoader();
-
+ 
   if (ok) {
     const v=S.visits.find(x=>x.rowKey===S.active.rowKey);
     if (v) { v.horaOut=horaOut; }
@@ -465,7 +465,7 @@ async function doCheckOut() {
     toast('🚪 Check-out registrado','success');
   }
 }
-
+ 
 // ═══════════════════════════════════
 // ENVÍO
 // ═══════════════════════════════════
@@ -484,7 +484,7 @@ async function send(data) {
     return true;
   }
 }
-
+ 
 // ═══════════════════════════════════
 // HISTORIAL
 // ═══════════════════════════════════
@@ -512,7 +512,7 @@ function renderHistory() {
     </div>
   `).join('');
 }
-
+ 
 // ═══════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════
