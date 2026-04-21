@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MARKA — Control de Asistencia</title>
+<title>G+MARKA — Control de Asistencia</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -426,9 +426,9 @@
 // CONFIG
 // ═══════════════════════════════════════════════════
 // Hoja 1: PDV (Nombre del PDV | Latitud | Longitud)
-const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?output=csv&gid=0';
+const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=0&single=true&output=csv';
 // Hoja 2: Relevadores (NOMBRE Y APELLIDO | C.I)
-const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?output=csv&gid=1995845338';
+const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=1995845338&single=true&output=csv';
 
 // Google Apps Script Web App URL — reemplazar con la URL real del script desplegado
 // Ver instrucciones al final del HTML
@@ -513,6 +513,8 @@ function parseRelevadores(text) {
   // Hoja 2: Columna A = NOMBRE Y APELLIDO, B = C.I
   state.relevadores = [];
   const rows = csvRows(text);
+  console.log('=== HOJA 2 RAW (primeras 5 filas) ===');
+  rows.slice(0, 5).forEach((r, i) => console.log(`Fila ${i}:`, JSON.stringify(r)));
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     const nombre = r[0] ? r[0].trim() : '';
@@ -522,6 +524,7 @@ function parseRelevadores(text) {
       state.relevadores.push({ nombre, cedula });
     }
   }
+  console.log('Relevadores cargados:', state.relevadores.length, state.relevadores.slice(0,3));
 }
 
 function populatePdvSelect() {
