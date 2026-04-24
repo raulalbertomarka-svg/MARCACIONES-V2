@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>+MARKA v2</title>
+<title>G+MARKA v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -170,7 +170,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 <body>
 
 <header class="app-header" id="app-header">
-  <div class="logo"><span>+</span>MARKA</div>
+  <div class="logo"><span>G+</span>MARKA</div>
   <div style="display:flex;align-items:center;gap:10px">
     <div style="text-align:right">
       <div style="font-size:13px;font-weight:600;color:#fff;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="hdr-name"></div>
@@ -187,21 +187,11 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 <div class="screen active" id="screen-login">
   <div class="login-box">
     <div class="login-logo">
-      <div class="wordmark"><span>+</span>MARKA</div>
+      <div class="wordmark"><span>G+</span>MARKA</div>
       <div class="sub">Control de Asistencia</div>
     </div>
     <div class="divider"></div>
-    <div>
-      <label>Marca</label>
-      <select id="sel-marca">
-        <option value="">— Seleccione —</option>
-        <option>EDESA</option><option>BAYER</option><option>COMINCO</option>
-        <option>UNILEVER</option><option>FRIGOMERC</option><option>FRUTIKA</option>
-        <option>SANTA MARGARITA</option><option>ARCOR</option>
-        <option>AGROTEC SOLUTIONS</option><option>CCP</option><option>AMX</option>
-        <option>METALURGICA</option><option>NEXTAR</option><option>IRIS</option><option>TIGRE</option>
-      </select>
-    </div>
+
     <div>
       <label>Número de Cédula</label>
       <input type="text" id="inp-ced" placeholder="Ej: 4567890" inputmode="numeric" maxlength="10" oninput="onCedInput()" autocomplete="off">
@@ -266,7 +256,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 // ═══════════════════════════════════
 const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=0&single=true&output=csv';
 const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=1995845338&single=true&output=csv';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1_ufzuxjCmI32vjksAHFyiOsVbEzwSsu2IrLC4nzV-1hJXuYQAd1zHSlY66x5FOTplA/exec'; // ← reemplace con su URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec'; // ← reemplace con su URL
 const MAX_DIST = 500;
 
 // ═══════════════════════════════════
@@ -377,7 +367,8 @@ function parseRel(text) {
   csvParse(text).slice(1).forEach(r => {
     const nombre=r[0]?.trim();
     const cedula=String(r[1]||'').trim().replace(/[\.\-\s]/g,'');
-    if (nombre && cedula) S.rels.push({nombre,cedula});
+    const marca=r[2]?.trim()||'';
+    if (nombre && cedula) S.rels.push({nombre,cedula,marca});
   });
 }
 
@@ -418,12 +409,10 @@ function onCedInput() {
 
 function doLogin() {
   const cedula=document.getElementById('inp-ced').value.trim().replace(/[\.\-\s]/g,'');
-  const marca=document.getElementById('sel-marca').value;
-  if (!marca)  { toast('Seleccione una marca','warn'); return; }
   if (!cedula) { toast('Ingrese su cédula','warn'); return; }
   const f=S.rels.find(r=>r.cedula===cedula);
   if (!f) { toast('Cédula no encontrada','error'); return; }
-  S.user={cedula, nombre:f.nombre, marca};
+  S.user={cedula, nombre:f.nombre, marca:f.marca};
   loadSession(); showMain();
 }
 
@@ -433,7 +422,6 @@ function logout() {
   document.getElementById('screen-login').classList.add('active');
   document.getElementById('app-header').classList.remove('visible');
   document.getElementById('inp-ced').value='';
-  document.getElementById('sel-marca').value='';
   document.getElementById('name-preview').className='name-preview';
 }
 
