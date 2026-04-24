@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>G+MARKA v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root {
   --primary: #111;
@@ -110,6 +112,26 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 .hist-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
 
 /* PDV SEARCH */
+/* MAP */
+.map-section { display:flex; flex-direction:column; gap:8px; }
+.map-header { display:flex; align-items:center; justify-content:space-between; }
+.map-badge { font-size:12px; background:#f0f0f0; color:var(--muted); padding:4px 10px; border-radius:20px; }
+.map-badge.has-near { background:#eafaf0; color:var(--success); font-weight:600; }
+#map { height:200px; border-radius:14px; overflow:hidden; border:2px solid var(--border); z-index:1; }
+.near-list { display:flex; flex-direction:column; gap:6px; }
+.near-item {
+  background:var(--card); border-radius:12px; padding:12px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer;
+  border:2px solid transparent; transition:border .15s;
+}
+.near-item:active { border-color:var(--accent); }
+.near-item.selected { border-color:var(--accent); background:#fdf6e3; }
+.near-name { font-size:14px; font-weight:600; }
+.near-dist { font-size:12px; color:var(--muted); margin-top:2px; }
+.near-arrow { font-size:18px; color:var(--accent); }
+.no-near { text-align:center; color:var(--muted); font-size:13px; padding:16px 0; }
+
 .pdv-search-wrap { position:relative; }
 .pdv-search-wrap input[type="text"] { padding-right:40px; cursor:pointer; }
 .pdv-search-wrap input[type="text"]:not([readonly]) { cursor:text; }
@@ -230,6 +252,17 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
       <span id="geo-label">Obteniendo ubicación GPS...</span>
     </div>
 
+    <div class="map-section">
+      <div class="map-header">
+        <div class="hist-title">PDVs Cercanos</div>
+        <div class="map-badge" id="near-badge">Esperando GPS...</div>
+      </div>
+      <div id="map"></div>
+      <div class="near-list" id="near-list">
+        <div class="no-near">Esperando ubicación GPS...</div>
+      </div>
+    </div>
+
     <div class="status-card idle" id="status-card">
       <span class="sc-icon">📍</span>
       <div>
@@ -256,7 +289,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 // ═══════════════════════════════════
 const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=0&single=true&output=csv';
 const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=1995845338&single=true&output=csv';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweg0ODniJpd5LqiGqvFBgnPgtCZAD7mJ8nY_y2mxkaGsugxA6VgnUzAdw2pX0Hk6G2_w/exec'; // ← reemplace con su URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec'; // ← reemplace con su URL
 const MAX_DIST = 500;
 
 // ═══════════════════════════════════
@@ -359,6 +392,8 @@ function selectPdv(idx) {
   document.getElementById('sel-pdv').value = idx;
   document.getElementById('inp-pdv-search').value = pdv.nombre;
   document.getElementById('pdv-drop').classList.remove('open');
+  // Refresh near list to show selected state
+  if (S.geo) renderNearList(S.geo.lat, S.geo.lng);
   updateButtons();
 }
 
@@ -375,10 +410,98 @@ function parseRel(text) {
 // ═══════════════════════════════════
 // GPS
 // ═══════════════════════════════════
+// MAP
+let map = null;
+let userMarker = null;
+let pdvMarkers = [];
+
+function initMap(lat, lng) {
+  if (map) { map.setView([lat, lng], 16); return; }
+  map = L.map('map', {zoomControl:true, attributionControl:false}).setView([lat, lng], 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+}
+
+function updateMap(lat, lng) {
+  initMap(lat, lng);
+
+  // User marker (blue dot)
+  if (userMarker) userMarker.remove();
+  userMarker = L.circleMarker([lat, lng], {
+    radius:10, fillColor:'#1565c0', color:'#fff',
+    weight:3, fillOpacity:1
+  }).addTo(map).bindPopup('📍 Tu ubicación');
+
+  // PDV markers
+  pdvMarkers.forEach(m => m.remove());
+  pdvMarkers = [];
+
+  const near = S.pdvs.map((p,i) => ({...p, i, dist: haversine(lat, lng, p.lat, p.lng)}))
+                      .filter(p => p.dist <= MAX_DIST)
+                      .sort((a,b) => a.dist - b.dist);
+
+  S.pdvs.forEach((p, i) => {
+    const dist = haversine(lat, lng, p.lat, p.lng);
+    const isNear = dist <= MAX_DIST;
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="background:${isNear ? '#1e7e34' : '#aaa'};color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:700;font-family:Barlow,sans-serif;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.2)">${p.nombre}</div>`,
+      iconAnchor: [0, 10]
+    });
+    const m = L.marker([p.lat, p.lng], {icon})
+      .addTo(map)
+      .on('click', () => selectPdv(i));
+    pdvMarkers.push(m);
+  });
+
+  // Fit to near PDVs + user if any near
+  if (near.length) {
+    const bounds = L.latLngBounds([[lat, lng], ...near.map(p => [p.lat, p.lng])]);
+    map.fitBounds(bounds, {padding:[30,30]});
+  }
+
+  renderNearList(lat, lng);
+}
+
+function renderNearList(lat, lng) {
+  const cont  = document.getElementById('near-list');
+  const badge = document.getElementById('near-badge');
+
+  const near = S.pdvs.map((p,i) => ({...p, i, dist: haversine(lat, lng, p.lat, p.lng)}))
+                      .filter(p => p.dist <= MAX_DIST)
+                      .sort((a,b) => a.dist - b.dist);
+
+  if (!near.length) {
+    badge.textContent = 'Ninguno en 500m';
+    badge.className = 'map-badge';
+    cont.innerHTML = '<div class="no-near">⚠️ No hay PDVs dentro de 500m de tu ubicación</div>';
+    return;
+  }
+
+  badge.textContent = `${near.length} dentro de 500m`;
+  badge.className = 'map-badge has-near';
+
+  const selIdx = document.getElementById('sel-pdv').value;
+  cont.innerHTML = near.map(p => `
+    <div class="near-item ${String(p.i) === String(selIdx) ? 'selected' : ''}" onclick="selectPdv(${p.i})">
+      <div>
+        <div class="near-name">📍 ${p.nombre}</div>
+        <div class="near-dist">${Math.round(p.dist)}m de distancia</div>
+      </div>
+      <div class="near-arrow">→</div>
+    </div>
+  `).join('');
+}
+
 function watchGeo() {
   if (!navigator.geolocation) { setGeo(false,'GPS no soportado'); return; }
   navigator.geolocation.watchPosition(
-    p => { S.geo={lat:p.coords.latitude,lng:p.coords.longitude}; S.geoOk=true; setGeo(true,`${S.geo.lat.toFixed(5)}, ${S.geo.lng.toFixed(5)}`); updateButtons(); },
+    p => {
+      S.geo={lat:p.coords.latitude,lng:p.coords.longitude};
+      S.geoOk=true;
+      setGeo(true,`${S.geo.lat.toFixed(5)}, ${S.geo.lng.toFixed(5)}`);
+      updateMap(S.geo.lat, S.geo.lng);
+      updateButtons();
+    },
     () => { S.geoOk=false; setGeo(false,'GPS no disponible — habilite ubicación'); updateButtons(); },
     {enableHighAccuracy:true, timeout:10000, maximumAge:5000}
   );
@@ -551,6 +674,7 @@ async function doCheckOut() {
     saveSession(); updateStatus(); updateButtons(); renderHistory();
     document.getElementById('sel-pdv').value='';
     document.getElementById('inp-pdv-search').value='';
+    if (S.geo) renderNearList(S.geo.lat, S.geo.lng);
     toast('🚪 Check-out registrado','success');
   }
 }
