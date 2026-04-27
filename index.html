@@ -417,13 +417,13 @@ function renderNearList(lat, lng) {
                       .sort((a,b) => a.dist - b.dist);
 
   if (!near.length) {
-    badge.textContent = 'Ninguno en 500m';
+    badge.textContent = 'Ninguno en 200m';
     badge.className = 'map-badge';
-    cont.innerHTML = '<div class="no-near">⚠️ No hay PDVs dentro de 500m de tu ubicación</div>';
+    cont.innerHTML = '<div class="no-near">⚠️ No hay PDVs dentro de 200m de tu ubicación</div>';
     return;
   }
 
-  badge.textContent = `${near.length} dentro de 500m`;
+  badge.textContent = `${near.length} dentro de 200m`;
   badge.className = 'map-badge has-near';
 
   const selIdx = document.getElementById('sel-pdv').value;
