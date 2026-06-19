@@ -51,6 +51,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 .btn-login { background:var(--primary); color:#fff; border:none; border-radius:14px; padding:18px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:18px; letter-spacing:1px; cursor:pointer; transition:background .2s; }
 .btn-login:active { background:#333; }
 .login-note { font-size:11px; color:var(--muted); text-align:center; }
+.login-version { font-size:10px; color:#ccc; text-align:center; margin-top:-8px; letter-spacing:.3px; }
 #screen-main { padding:0 0 28px; background:var(--bg); }
 .user-card { background:var(--primary); padding:20px 18px 18px; color:#fff; }
 .user-card .uc-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
@@ -78,6 +79,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 .lunch-section { background:var(--card); border-radius:14px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.07); }
 .lunch-header { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 10px; border-bottom:1px solid #f0f0f0; }
 .lunch-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:.5px; color:var(--text); display:flex; align-items:center; gap:6px; }
+.lunch-range { font-size:11px; color:var(--muted); margin-top:2px; }
 .lunch-status-pill { font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:.3px; }
 .lunch-status-pill.trabajando { background:#eafaf0; color:var(--success); }
 .lunch-status-pill.almuerzo   { background:var(--lunch-in-bg); color:var(--lunch-in); }
@@ -181,6 +183,7 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
     </div>
     <button class="btn-login" onclick="doLogin()">INGRESAR →</button>
     <p class="login-note">Sin contraseña. Solo su número de cédula.</p>
+    <p class="login-version" id="login-version">Versión —</p>
   </div>
 </div>
 
@@ -236,7 +239,10 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
     <!-- FICHAJE DE ALMUERZO — solo visible con check-in activo -->
     <div class="lunch-section" id="lunch-section">
       <div class="lunch-header">
-        <div class="lunch-title">🍽️ Almuerzo</div>
+        <div>
+          <div class="lunch-title">🍽️ Almuerzo</div>
+          <div class="lunch-range">Horario: 11:00 a 14:30</div>
+        </div>
         <div class="lunch-status-pill trabajando" id="lunch-pill">Trabajando</div>
       </div>
       <div class="lunch-btn-row">
@@ -263,6 +269,21 @@ select:focus, input:focus { border-color:var(--accent); background:#fff; }
 </div>
 
 <script>
+const APP_VERSION = '1.0.3';
+const VERSION_URL = 'https://raulalbertomarka-svg.github.io/prueba-marcaciones/version.json';
+
+async function checkVersion() {
+  try {
+    const r = await fetch(VERSION_URL + '?t=' + Date.now());
+    const data = await r.json();
+    if (data.version !== APP_VERSION) {
+      if (confirm('Hay una nueva versión disponible. ¿Actualizar ahora?')) {
+        window.location.reload(true);
+      }
+    }
+  } catch(e) {}
+}
+
 const SHEETS_PDV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=0&single=true&output=csv';
 const SHEETS_REL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcWB00TSzyIV0sOnq5pJ4a5gugSIhDT2-HSI9D3vlP1z4O9P0YeJAK9X9kgNwmczOE0sA_SaAmFuCX/pub?gid=1995845338&single=true&output=csv';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj6y6ohjiu9SDjG12QiHsTlQZPHwJtvE_KhkAsbHU9dNq_mnA2lf7bMHSbMieiyhIblw/exec';
@@ -275,10 +296,13 @@ let S = {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
+  const vEl = document.getElementById('login-version');
+  if (vEl) vEl.textContent = 'Versión ' + APP_VERSION;
   loader('Cargando datos...');
   await loadData();
   watchGeo();
   hideLoader();
+  checkVersion();
 });
 
 async function loadData() {
@@ -553,8 +577,36 @@ function updateLunchButtons() {
   }
 }
 
+// Horario permitido de almuerzo
+const LUNCH_INICIO = { h: 11, m: 0  };  // 11:00
+const LUNCH_FIN    = { h: 14, m: 30 };  // 14:30
+
+function enHorarioAlmuerzo() {
+  const now = new Date();
+  const totalMin = now.getHours() * 60 + now.getMinutes();
+  const inicioMin = LUNCH_INICIO.h * 60 + LUNCH_INICIO.m;
+  const finMin    = LUNCH_FIN.h    * 60 + LUNCH_FIN.m;
+  return totalMin >= inicioMin && totalMin <= finMin;
+}
+
 async function doLunch(tipo) {
   if (!S.user) { toast('Sesión no iniciada','error'); return; }
+
+  // Validar horario
+  if (!enHorarioAlmuerzo()) {
+    const now = new Date();
+    const totalMin = now.getHours() * 60 + now.getMinutes();
+    const inicioMin = LUNCH_INICIO.h * 60 + LUNCH_INICIO.m;
+    const ini = LUNCH_INICIO.h+':'+String(LUNCH_INICIO.m).padStart(2,'0');
+    const fin = LUNCH_FIN.h+':'+String(LUNCH_FIN.m).padStart(2,'0');
+    if (totalMin < inicioMin) {
+      toast('⏰ Todavía no es horario de almuerzo (desde las '+ini+')','warn');
+    } else {
+      toast('⏰ El horario de almuerzo ya finalizó (hasta las '+fin+')','warn');
+    }
+    return;
+  }
+
   const now=new Date();
   const hora = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
   const fecha = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
