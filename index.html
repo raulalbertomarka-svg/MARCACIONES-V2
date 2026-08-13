@@ -378,7 +378,7 @@ function selectPdv(idx) {
   document.getElementById('sel-pdv').value = idx;
   document.getElementById('inp-pdv-search').value = pdv.nombre;
   document.getElementById('pdv-drop').classList.remove('open');
-  if (S.geo) renderNearList(S.geo.lat, S.geo.lng);
+  if (S.geo) renderNearList(S.geo.lat,S.geo.lng);
   updateButtons();
 }
 
@@ -493,22 +493,24 @@ function showMain() {
 }
 
 function updateButtons() {
-  const hasActive=!!S.active;
   const pdvIdx=document.getElementById('sel-pdv').value;
   const hasPdv=pdvIdx!=='';
   const btnIn=document.getElementById('btn-in'), btnOut=document.getElementById('btn-out');
   const searchInp=document.getElementById('inp-pdv-search');
 
-  if (!hasActive && hasPdv && S.geoOk) btnIn.classList.remove('disabled');
+  // Ambos botones dependen únicamente de tener PDV seleccionado + GPS activo.
+  // No se bloquean según S.active, porque esa variable puede perderse
+  // (ej: el control parental borra el localStorage) y el usuario debe
+  // poder registrar un Check-out igual aunque la app "no recuerde" el Check-in.
+  if (hasPdv && S.geoOk) btnIn.classList.remove('disabled');
   else btnIn.classList.add('disabled');
 
-  if (hasActive) {
-    btnOut.classList.remove('disabled'); btnIn.classList.add('disabled');
-    searchInp.setAttribute('readonly',''); searchInp.style.pointerEvents='none'; searchInp.style.opacity='.6';
-  } else {
-    btnOut.classList.add('disabled');
-    searchInp.style.pointerEvents=''; searchInp.style.opacity='';
-  }
+  if (hasPdv && S.geoOk) btnOut.classList.remove('disabled');
+  else btnOut.classList.add('disabled');
+
+  searchInp.style.pointerEvents='';
+  searchInp.style.opacity='';
+  searchInp.removeAttribute('readonly-forced');
 
   // Sección almuerzo: siempre visible
   updateLunchButtons();
@@ -523,7 +525,7 @@ function updateStatus() {
   } else {
     card.className='status-card idle';
     text.textContent='Sin registro activo';
-    detail.textContent='Seleccione un PDV y haga Check-in';
+    detail.textContent='Seleccione un PDV. Puede hacer Check-in o, si ya había ingresado antes, Check-out.';
   }
 }
 
@@ -531,7 +533,7 @@ async function doCheckIn() {
   const idx=parseInt(document.getElementById('sel-pdv').value);
   if (isNaN(idx)) { toast('Seleccione un PDV','warn'); return; }
   if (!S.geoOk)   { toast('GPS no disponible','error'); return; }
-  if (S.active)   { toast('Haga Check-out primero','warn'); return; }
+  if (S.active)   { toast('Ya tiene un Check-in activo en '+S.active.pdv+'. Si ya se retiró, use Check-out.','warn'); return; }
   const pdv=S.pdvs[idx];
   const dist=haversine(S.geo.lat,S.geo.lng,pdv.lat,pdv.lng);
   if (dist>MAX_DIST) { toast('Fuera de rango: '+Math.round(dist)+'m (máx '+MAX_DIST+'m)','error'); return; }
@@ -549,15 +551,43 @@ async function doCheckIn() {
 }
 
 async function doCheckOut() {
-  if (!S.active) { toast('No hay Check-in activo','warn'); return; }
-  if (!S.geoOk)  { toast('GPS no disponible','error'); return; }
+  const idx=parseInt(document.getElementById('sel-pdv').value);
+  if (!S.geoOk) { toast('GPS no disponible','error'); return; }
+
+  let pdvNombre, horaIn, latIn, lngIn, rowKey, fecha;
+
+  if (S.active) {
+    // Caso normal: tenemos el check-in en memoria/localStorage
+    pdvNombre = S.active.pdv;
+    horaIn    = S.active.horaIn;
+    latIn     = S.active.latIn;
+    lngIn     = S.active.lngIn;
+    rowKey    = S.active.rowKey;
+    fecha     = S.active.fecha;
+  } else {
+    // Caso "sesión perdida" (ej: control parental borró localStorage):
+    // igual dejamos registrar el Check-out con el PDV seleccionado a mano.
+    if (isNaN(idx)) { toast('Seleccione el PDV donde hizo Check-in para registrar el Check-out','warn'); return; }
+    const pdv = S.pdvs[idx];
+    pdvNombre = pdv.nombre;
+    horaIn    = '';       // se desconoce, quedó perdido localmente
+    latIn     = '';
+    lngIn     = '';
+    rowKey    = S.user.cedula+'_'+Date.now();
+    fecha     = fmtDate(new Date());
+  }
+
   loader('Registrando Check-out...');
   const now=new Date(), horaOut=fmtTime(now);
-  const ok=await send({accion:'checkout',rowKey:S.active.rowKey,cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:S.active.pdv,fecha:S.active.fecha,horaIn:S.active.horaIn,horaOut,latIn:S.active.latIn,lngIn:S.active.lngIn,latOut:S.geo.lat,lngOut:S.geo.lng});
+  const ok=await send({accion:'checkout',rowKey,cedula:S.user.cedula,nombre:S.user.nombre,marca:S.user.marca,pdv:pdvNombre,fecha,horaIn,horaOut,latIn,lngIn,latOut:S.geo.lat,lngOut:S.geo.lng});
   hideLoader();
   if (ok) {
-    const v=S.visits.find(x=>x.rowKey===S.active.rowKey);
-    if (v) v.horaOut=horaOut;
+    if (S.active) {
+      const v=S.visits.find(x=>x.rowKey===S.active.rowKey);
+      if (v) v.horaOut=horaOut;
+    } else {
+      S.visits.unshift({pdv:pdvNombre,fecha,horaIn:horaIn||'—',horaOut,rowKey});
+    }
     S.active=null;
     saveSession(); updateStatus(); updateButtons(); renderHistory();
     document.getElementById('sel-pdv').value='';
